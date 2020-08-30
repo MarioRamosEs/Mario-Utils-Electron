@@ -1,19 +1,44 @@
 const path = require("path");
 const { app, Menu, Tray, Notification } = require("electron");
 const exec = require("child_process").exec;
+const psTree = require('ps-tree');
 
 const isWin = process.platform === "win32";
 const mcuIp = "192.168.1.173";
 
+let execNoIdle = null;
 let tray = null;
 
-//No funciona 
-function notif(value){
-  console.log(value);
-  new Notification("Test", {
-    body: value,
-  });
+function notif(title, body = ""){
+  console.log(title + " - " + body);
+  new Notification({
+    title: title,
+    body: body
+  }).show();
 }
+
+function kill(pid, signal, callback) {
+  signal = signal || 'SIGKILL';
+  callback = callback || function () { };
+  var killTree = true;
+  if (killTree) {
+    psTree(pid, function (err, children) {
+      [pid].concat(
+        children.map(function (p) {
+          return p.PID;
+        })
+      ).forEach(function (tpid) {
+        try { process.kill(tpid, signal) }
+        catch (ex) { }
+      });
+      callback();
+    });
+  } else {
+    try { process.kill(pid, signal) }
+    catch (ex) { }
+    callback();
+  }
+};
 
 app.on("ready", () => {
   tray = new Tray(path.join(__dirname, "./../assets/icon.png"));
@@ -55,7 +80,18 @@ app.on("ready", () => {
     {
       label: "No IDLE",
       click() {
-        notif("TODO");
+        if (isWin) {
+          if (execNoIdle === null) {
+            execNoIdle = exec("node C:\\REPOS\\NodeUtils\\src\\NoIdle.js", { detached: true });
+            notif("No IDLE iniciado");
+          } else {
+            kill(execNoIdle.pid);
+            execNoIdle = null;
+            notif("No IDLE finalizado");
+          }
+        } else {
+          notif("TODO");
+        }
       },
     },
     {
@@ -71,3 +107,5 @@ app.on("ready", () => {
 });
 
 if(!isWin) app.dock.hide();
+//app.setAppUserModelId(process.execPath);
+app.setAppUserModelId(path.join(__dirname, 'node_modules', 'electron', 'dist', 'electron.exe'));
