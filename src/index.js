@@ -9,7 +9,7 @@ const mcuIp = "192.168.1.173";
 let execNoIdle = null;
 let tray = null;
 
-function notif(title, body = ""){
+function notif(title, body = "") {
   console.log(title + " - " + body);
   new Notification({
     title: title,
@@ -40,6 +40,14 @@ function kill(pid, signal, callback) {
   }
 };
 
+function shutdown(timeInSeconds) {
+  if (isWin) {
+    exec("shutdown /s /t " + timeInSeconds);
+  } else {
+    notif("TODO");
+  }
+}
+
 app.on("ready", () => {
   tray = new Tray(path.join(__dirname, "./../assets/icon.png"));
 
@@ -55,14 +63,45 @@ app.on("ready", () => {
       },
     },
     {
-      label: "Apagar 30 minutos",
-      click() {
-        if (isWin) {
-          exec("shutdown /s /t 1800");
-        } else {
-          notif("TODO");
+      label: "Apagar en...",
+      submenu: [
+        {
+          label: 'Cancelar apagado',
+          click() {
+            notif("TODO");
+          }
+        },
+        {
+          label: '15 minutos',
+          click() {
+            shutdown(900)
+          }
+        },
+        {
+          label: '30 minutos',
+          click() {
+            shutdown(1800)
+          }
+        },
+        {
+          label: '1 hora',
+          click() {
+            shutdown(3600)
+          }
+        },
+        {
+          label: '2 horas',
+          click() {
+            shutdown(3600 * 2)
+          }
+        },
+        {
+          label: '4 horas',
+          click() {
+            shutdown(3600 * 4)
+          }
         }
-      },
+      ],
     },
     {
       label: "Lolete",
@@ -106,6 +145,5 @@ app.on("ready", () => {
   tray.setContextMenu(menu);
 });
 
-if(!isWin) app.dock.hide();
-//app.setAppUserModelId(process.execPath);
-app.setAppUserModelId(path.join(__dirname, 'node_modules', 'electron', 'dist', 'electron.exe'));
+if (!isWin) app.dock.hide();
+app.setAppUserModelId(process.execPath)
