@@ -1,12 +1,11 @@
 const path = require("path");
 const { app, Menu, Tray, Notification } = require("electron");
 const exec = require("child_process").exec;
-const psTree = require('ps-tree');
 
+const version = require('./../package').version;
 const isWin = process.platform === "win32";
 const mcuIp = "192.168.1.173";
 
-let execNoIdle = null;
 let tray = null;
 
 function notif(title, body = "") {
@@ -16,29 +15,6 @@ function notif(title, body = "") {
     body: body
   }).show();
 }
-
-function kill(pid, signal, callback) {
-  signal = signal || 'SIGKILL';
-  callback = callback || function () { };
-  var killTree = true;
-  if (killTree) {
-    psTree(pid, function (err, children) {
-      [pid].concat(
-        children.map(function (p) {
-          return p.PID;
-        })
-      ).forEach(function (tpid) {
-        try { process.kill(tpid, signal) }
-        catch (ex) { }
-      });
-      callback();
-    });
-  } else {
-    try { process.kill(pid, signal) }
-    catch (ex) { }
-    callback();
-  }
-};
 
 function shutdown(timeInSeconds) {
   if (isWin) {
@@ -53,7 +29,7 @@ app.on("ready", () => {
 
   const menu = Menu.buildFromTemplate([
     {
-      label: "Test",
+      label: version,
       click() {
         if (isWin) {
           notif("Test desde Windows");
@@ -120,14 +96,8 @@ app.on("ready", () => {
       label: "No IDLE",
       click() {
         if (isWin) {
-          if (execNoIdle === null) {
-            execNoIdle = exec("node C:\\REPOS\\NodeUtils\\src\\NoIdle.js", { detached: true });
-            notif("No IDLE iniciado");
-          } else {
-            kill(execNoIdle.pid);
-            execNoIdle = null;
-            notif("No IDLE finalizado");
-          }
+          execNoIdle = exec("node C:\\REPOS\\NodeUtils\\src\\NoIdle.js");
+          notif("No IDLE iniciado", "Mueve manualmente el cursor para desactivarlo");
         } else {
           notif("TODO");
         }
