@@ -1,11 +1,16 @@
 const path = require("path");
 const { app, Menu, Tray, Notification } = require("electron");
 const exec = require("child_process").exec;
+const { Client } = require('tplink-smarthome-api');
 
 const version = require('./../package').version;
 const isWin = process.platform === "win32";
-const mcuIp = "192.168.1.173";
+const ips = {
+  aire: "192.168.1.156",
+  leds: ""
+}
 
+const client = new Client();
 let tray = null;
 
 function notif(title, body = "") {
@@ -37,6 +42,48 @@ app.on("ready", () => {
           notif("Test desde Mac");
         }
       },
+    },
+    {
+      label: "Leds",
+      submenu: [
+        {
+          label: 'Encender',
+          click() {
+            const plug = client.getDevice({ host: ips.leds }).then((device) => {
+              device.setPowerState(true);
+            });
+          }
+        },
+        {
+          label: 'Apagar',
+          click() {
+            const plug = client.getDevice({ host: ips.leds }).then((device) => {
+              device.setPowerState(false);
+            });
+          }
+        }
+      ]
+    },
+    {
+      label: "Aire",
+      submenu: [
+        {
+          label: 'Encender',
+          click() {
+            const plug = client.getDevice({ host: aireIP }).then((device) => {
+              device.setPowerState(true);
+            });
+          }
+        },
+        {
+          label: 'Apagar',
+          click() {
+            const plug = client.getDevice({ host: aireIP }).then((device) => {
+              device.setPowerState(false);
+            });
+          }
+        }
+      ]
     },
     {
       label: "Apagar en...",

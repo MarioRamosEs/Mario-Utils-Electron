@@ -1,15 +1,17 @@
 {
   "name": "mario-utils-electron",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "",
   "main": "./src/index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "lint": "eslint --fix ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ps-tree": "^1.2.0"
+    "ps-tree": "^1.2.0",
+    "tplink-smarthome-api": "^2.0.0"
   },
   "devDependencies": {
     "electron": "^10.1.0"
