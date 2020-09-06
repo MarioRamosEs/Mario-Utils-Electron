@@ -7,7 +7,8 @@ const version = require('./../package').version;
 const isWin = process.platform === "win32";
 const ips = {
   aire: "192.168.1.156",
-  leds: ""
+  leds: "",
+  fuente: "192.168.1.164"
 }
 
 const client = new Client();
@@ -70,7 +71,7 @@ app.on("ready", () => {
         {
           label: 'Encender',
           click() {
-            const plug = client.getDevice({ host: aireIP }).then((device) => {
+            const plug = client.getDevice({ host: ips.aire }).then((device) => {
               device.setPowerState(true);
             });
           }
@@ -78,7 +79,28 @@ app.on("ready", () => {
         {
           label: 'Apagar',
           click() {
-            const plug = client.getDevice({ host: aireIP }).then((device) => {
+            const plug = client.getDevice({ host: ips.aire }).then((device) => {
+              device.setPowerState(false);
+            });
+          }
+        }
+      ]
+    },
+    {
+      label: "Fuente",
+      submenu: [
+        {
+          label: 'Encender',
+          click() {
+            const plug = client.getDevice({ host: ips.fuente }).then((device) => {
+              device.setPowerState(true);
+            });
+          }
+        },
+        {
+          label: 'Apagar',
+          click() {
+            const plug = client.getDevice({ host: ips.fuente }).then((device) => {
               device.setPowerState(false);
             });
           }
