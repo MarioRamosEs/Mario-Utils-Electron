@@ -38,7 +38,7 @@ async function turnOnOff(deviceIp) {
 
 app.on("ready", () => {
   tray = new Tray(path.join(__dirname, "./../assets/icon.png"));
-
+  
   const menu = Menu.buildFromTemplate([
     {
       label: version,
@@ -143,6 +143,10 @@ app.on("ready", () => {
 
   tray.setToolTip("Mario's Utils");
   tray.setContextMenu(menu);
+  tray.setIgnoreDoubleClickEvents(true);
+  tray.on('click', function (e) {
+    turnOnOff(ips.leds);
+  });
 });
 
 if (!isWin) app.dock.hide();
