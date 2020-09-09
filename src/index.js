@@ -6,9 +6,9 @@ const { Client } = require('tplink-smarthome-api');
 const version = require('./../package').version;
 const isWin = process.platform === "win32";
 const ips = {
-  aire: "192.168.1.156",
-  leds: "",
-  fuente: "192.168.1.164"
+  aire: "192.168.1.157",
+  leds: "192.168.1.171",
+  fuente: "192.168.1.156"
 }
 
 const client = new Client();
@@ -30,6 +30,12 @@ function shutdown(timeInSeconds) {
   }
 }
 
+async function turnOnOff(deviceIp) {
+  const device = await client.getDevice({ host: deviceIp });
+  const encendido = await device.getPowerState();
+  device.setPowerState(!encendido);
+}
+
 app.on("ready", () => {
   tray = new Tray(path.join(__dirname, "./../assets/icon.png"));
 
@@ -46,66 +52,21 @@ app.on("ready", () => {
     },
     {
       label: "Leds",
-      submenu: [
-        {
-          label: 'Encender',
-          click() {
-            const plug = client.getDevice({ host: ips.leds }).then((device) => {
-              device.setPowerState(true);
-            });
-          }
-        },
-        {
-          label: 'Apagar',
-          click() {
-            const plug = client.getDevice({ host: ips.leds }).then((device) => {
-              device.setPowerState(false);
-            });
-          }
-        }
-      ]
+      click() {
+        turnOnOff(ips.leds)
+      },
     },
     {
       label: "Aire",
-      submenu: [
-        {
-          label: 'Encender',
-          click() {
-            const plug = client.getDevice({ host: ips.aire }).then((device) => {
-              device.setPowerState(true);
-            });
-          }
-        },
-        {
-          label: 'Apagar',
-          click() {
-            const plug = client.getDevice({ host: ips.aire }).then((device) => {
-              device.setPowerState(false);
-            });
-          }
-        }
-      ]
+      click() {
+        turnOnOff(ips.aire)
+      },
     },
     {
       label: "Fuente",
-      submenu: [
-        {
-          label: 'Encender',
-          click() {
-            const plug = client.getDevice({ host: ips.fuente }).then((device) => {
-              device.setPowerState(true);
-            });
-          }
-        },
-        {
-          label: 'Apagar',
-          click() {
-            const plug = client.getDevice({ host: ips.fuente }).then((device) => {
-              device.setPowerState(false);
-            });
-          }
-        }
-      ]
+      click() {
+        turnOnOff(ips.fuente)
+      },
     },
     {
       label: "Apagar en...",
