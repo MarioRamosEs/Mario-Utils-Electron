@@ -8,7 +8,11 @@ const isWin = process.platform === "win32";
 const ips = {
   aire: "192.168.1.157",
   leds: "192.168.1.171",
-  fuente: "192.168.1.156"
+  fuente: "192.168.1.156",
+  torre: "192.168.1.159"
+};
+const macs = {
+  torre: "E0:D5:5E:89:3C:22"
 }
 
 const client = new Client();
@@ -48,6 +52,19 @@ app.on("ready", () => {
         } else {
           notif("Test desde Mac");
         }
+      },
+    },
+    {
+      label: "WoL Torre",
+      click() {
+        var wol = require('wake_on_lan');
+        wol.wake(macs.torre, { address: ips.torre }, function (error) {
+          if (error) {
+            notif("Error en WoL: "+error);
+          } else {
+            notif("WoL correcto");
+          }
+        });
       },
     },
     {
