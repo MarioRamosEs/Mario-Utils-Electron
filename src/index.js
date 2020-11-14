@@ -6,13 +6,16 @@ const { Client } = require('tplink-smarthome-api');
 const version = require('./../package').version;
 const isWin = process.platform === "win32";
 const ips = {
-  aire: "192.168.1.148", //Ok digi
-  leds: "192.168.1.153", //Ok digi
-  fuente: "192.168.1.156",
+  aire: "192.168.1.128", 
+  leds: "192.168.1.129", 
+  fuente: "192.168.1.144",
   torre: "192.168.1.159"
 };
 const macs = {
-  torre: "E0:D5:5E:89:3C:22"
+  torre: "E0:D5:5E:89:3C:22",
+  aire: "d8:0d:17:a1:7c:ed",
+  leds: "b0:95:75:86:88:45",
+  fuente: "b0:95:75:86:8a:53"
 }
 
 const client = new Client();
