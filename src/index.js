@@ -8,14 +8,14 @@ const isWin = process.platform === "win32";
 const ips = {
   aire: "192.168.1.128", 
   leds: "192.168.1.129", 
-  fuente: "192.168.1.144",
+  bola: "192.168.1.144",
   torre: "192.168.1.159"
 };
 const macs = {
   torre: "E0:D5:5E:89:3C:22",
   aire: "d8:0d:17:a1:7c:ed",
   leds: "b0:95:75:86:88:45",
-  fuente: "b0:95:75:86:8a:53"
+  bola: "b0:95:75:86:8a:53"
 }
 
 const client = new Client();
@@ -71,21 +71,28 @@ app.on("ready", () => {
       },
     },
     {
-      label: "Leds",
-      click() {
-        turnOnOff(ips.leds)
-      },
-    },
-    {
       label: "Aire",
       click() {
         turnOnOff(ips.aire)
       },
     },
     {
-      label: "Fuente",
+      label: "Leds",
       click() {
-        turnOnOff(ips.fuente)
+        turnOnOff(ips.leds)
+      },
+    },
+    {
+      label: "Bola",
+      click() {
+        turnOnOff(ips.bola)
+      },
+    },
+    {
+      label: "Bola y Leds",
+      click() {
+        turnOnOff(ips.bola)
+        turnOnOff(ips.leds)
       },
     },
     {
@@ -166,6 +173,7 @@ app.on("ready", () => {
   tray.setIgnoreDoubleClickEvents(true);
   tray.on('click', function (e) {
     turnOnOff(ips.leds);
+    turnOnOff(ips.bola);
   });
 });
 
