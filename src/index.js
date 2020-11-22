@@ -1,13 +1,13 @@
 const path = require("path");
-const { app, Menu, Tray, Notification } = require("electron");
+const { app, Menu, Tray, Notification, powerSaveBlocker } = require("electron");
 const exec = require("child_process").exec;
 const { Client } = require('tplink-smarthome-api');
 
 const version = require('./../package').version;
 const isWin = process.platform === "win32";
 const ips = {
-  aire: "192.168.1.128", 
-  leds: "192.168.1.129", 
+  aire: "192.168.1.128",
+  leds: "192.168.1.129",
   bola: "192.168.1.144",
   torre: "192.168.1.159"
 };
@@ -20,9 +20,10 @@ const macs = {
 
 const client = new Client();
 let tray = null;
+let idBloqueoSuspension = 0;
 
 function notif(title, body = "") {
-  console.log(title + " - " + body);
+  // console.log(title + " - " + body);
   new Notification({
     title: title,
     body: body
@@ -39,13 +40,13 @@ function shutdown(timeInSeconds) {
 
 async function turnOnOff(deviceIp) {
   const device = await client.getDevice({ host: deviceIp });
-  const encendido = await device.getPowerState();
-  device.setPowerState(!encendido);
+  const powerState = await device.getPowerState();
+  device.setPowerState(!powerState);
 }
 
 app.on("ready", () => {
   tray = new Tray(path.join(__dirname, "./../assets/icon.png"));
-  
+
   const menu = Menu.buildFromTemplate([
     {
       label: version,
@@ -58,12 +59,47 @@ app.on("ready", () => {
       },
     },
     {
+      label: "Bloqueo suspensión",
+      visible: isWin,
+      submenu: [
+        {
+          label: "Ver programas que bloquean",
+          click() {
+            exec("start cmd.exe /K powercfg -requests");
+          },
+        },
+        {
+          label: "Bloquear",
+          click() {
+            if (!idBloqueoSuspension) {
+              idBloqueoSuspension = powerSaveBlocker.start('prevent-app-suspension');
+              notif("Bloqueo activado");
+            } else {
+              notif("Bloqueo ya activo");
+            }
+          },
+        },
+        {
+          label: "Desbloquear",
+          click() {
+            powerSaveBlocker.stop(idBloqueoSuspension);
+            if (!powerSaveBlocker.isStarted(idBloqueoSuspension)) {
+              idBloqueoSuspension = 0;
+              notif("Bloqueo desactivado");
+            } else {
+              notif("No se pudo desbloquear");
+            }
+          },
+        }
+      ]
+    },
+    {
       label: "WoL Torre",
       click() {
-        var wol = require('wake_on_lan');
+        const wol = require('wake_on_lan');
         wol.wake(macs.torre, { address: ips.torre }, function (error) {
           if (error) {
-            notif("Error en WoL: "+error);
+            notif("Error en WoL: " + error);
           } else {
             notif("WoL correcto");
           }
@@ -97,6 +133,7 @@ app.on("ready", () => {
     },
     {
       label: "Apagar en...",
+      visible: isWin,
       submenu: [
         {
           label: 'Cancelar apagado',
@@ -138,19 +175,21 @@ app.on("ready", () => {
     },
     {
       label: "Lolete",
+      visible: isWin,
       click() {
         if (isWin) {
           exec("C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe");
-          exec("C:\\Users\\mario\\AppData\\Local\\Programs\\Blitz\\Blitz.exe");
           exec("\"E:\\Games\\Riot Games\\Riot Client\\RiotClientServices.exe\" --launch-product=league_of_legends --launch-patchline=live");
+          //exec("C:\\Users\\mario\\AppData\\Local\\Programs\\Blitz\\Blitz.exe");
         } else {
-          exec("open -a Blitz");
+          //exec("open -a Blitz");
           exec("open -a LeagueClient");
         }
       },
     },
     {
       label: "No IDLE",
+      visible: isWin,
       click() {
         if (isWin) {
           execNoIdle = exec("node C:\\REPOS\\NodeUtils\\src\\NoIdle.js");
