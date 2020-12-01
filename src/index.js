@@ -61,8 +61,12 @@ app.on("ready", () => {
     {
       label: "Randomizer",
       click() {
-        mainWindow = new BrowserWindow({});
-        mainWindow.loadURL(`https://marioramos.es/utils/randomizer`);
+        try {
+          let win = new BrowserWindow({});
+          win.loadURL(`https://marioramos.es/utils/randomizer`);
+        } catch (error) {
+          console.log(error);
+        }
       },
     },
     {
@@ -225,3 +229,4 @@ app.on("ready", () => {
 
 if (!isWin) app.dock.hide();
 app.setAppUserModelId(process.execPath)
+app.on('window-all-closed', e => e.preventDefault() )
