@@ -1,5 +1,5 @@
 const path = require("path");
-const { app, Menu, Tray, Notification, powerSaveBlocker } = require("electron");
+const { app, Menu, Tray, Notification, powerSaveBlocker, BrowserWindow } = require("electron");
 const exec = require("child_process").exec;
 const { Client } = require('tplink-smarthome-api');
 
@@ -56,6 +56,14 @@ app.on("ready", () => {
         } else {
           notif("Test desde Mac");
         }
+      },
+    },
+    {
+      label: "Randomizer",
+      click() {
+        mainWindow = new BrowserWindow({});
+        console.log(`file://${__dirname}/forms/randomizer.html`);
+        mainWindow.loadURL(`file://${__dirname}/forms/randomizer.html`);
       },
     },
     {
