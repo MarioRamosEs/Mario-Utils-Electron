@@ -62,8 +62,7 @@ app.on("ready", () => {
       label: "Randomizer",
       click() {
         mainWindow = new BrowserWindow({});
-        console.log(`file://${__dirname}/forms/randomizer.html`);
-        mainWindow.loadURL(`file://${__dirname}/forms/randomizer.html`);
+        mainWindow.loadURL(`https://marioramos.es/utils/randomizer`);
       },
     },
     {
