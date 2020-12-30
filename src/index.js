@@ -23,7 +23,6 @@ let tray = null;
 let idBloqueoSuspension = 0;
 
 function notif(title, body = "") {
-  // console.log(title + " - " + body);
   new Notification({
     title: title,
     body: body
@@ -149,7 +148,7 @@ app.on("ready", () => {
         {
           label: 'Cancelar apagado',
           click() {
-            notif("TODO");
+            exec("shutdown /a");
           }
         },
         {
@@ -229,4 +228,4 @@ app.on("ready", () => {
 
 if (!isWin) app.dock.hide();
 app.setAppUserModelId(process.execPath)
-app.on('window-all-closed', e => e.preventDefault() )
+app.on('window-all-closed', e => e.preventDefault())
