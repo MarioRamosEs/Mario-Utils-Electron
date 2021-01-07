@@ -1,2 +1,2 @@
-cd C:\REPOS\Mario-Utils-Electron
+cd .
 npm run start
