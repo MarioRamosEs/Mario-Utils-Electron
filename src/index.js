@@ -1,39 +1,42 @@
-const path = require("path");
-const { app, Menu, Tray, Notification, powerSaveBlocker, BrowserWindow } = require("electron");
-const exec = require("child_process").exec;
+const path = require('path');
+const {
+  app, Menu, Tray, Notification, powerSaveBlocker, BrowserWindow,
+} = require('electron');
+const { exec } = require('child_process');
 const { Client } = require('tplink-smarthome-api');
+const wol = require('wake_on_lan');
+const { version } = require('../package');
 
-const version = require('./../package').version;
-const isWin = process.platform === "win32";
+const isWin = process.platform === 'win32';
 const ips = {
-  aire: "192.168.1.128",
-  leds: "192.168.1.129",
-  bola: "192.168.1.144",
-  torre: "192.168.1.159"
+  aire: '192.168.1.128',
+  leds: '192.168.1.129',
+  bola: '192.168.1.144',
+  torre: '192.168.1.159',
 };
 const macs = {
-  torre: "E0:D5:5E:89:3C:22",
-  aire: "d8:0d:17:a1:7c:ed",
-  leds: "b0:95:75:86:88:45",
-  bola: "b0:95:75:86:8a:53"
-}
+  torre: 'E0:D5:5E:89:3C:22',
+  aire: 'd8:0d:17:a1:7c:ed',
+  leds: 'b0:95:75:86:88:45',
+  bola: 'b0:95:75:86:8a:53',
+};
 
 const client = new Client();
 let tray = null;
 let idBloqueoSuspension = 0;
 
-function notif(title, body = "") {
+function notif(title, body = '') {
   new Notification({
-    title: title,
-    body: body
+    title,
+    body,
   }).show();
 }
 
 function shutdown(timeInSeconds) {
   if (isWin) {
-    exec("shutdown /s /t " + timeInSeconds);
+    exec(`shutdown /s /t ${timeInSeconds}`);
   } else {
-    notif("TODO");
+    notif('TODO');
   }
 }
 
@@ -43,174 +46,173 @@ async function turnOnOff(deviceIp) {
   device.setPowerState(!powerState);
 }
 
-app.on("ready", () => {
-  tray = new Tray(path.join(__dirname, "./../assets/icon.png"));
+app.on('ready', () => {
+  tray = new Tray(path.join(__dirname, './../assets/icon.png'));
 
   const menu = Menu.buildFromTemplate([
     {
       label: version,
       click() {
         if (isWin) {
-          notif("Test desde Windows");
+          notif('Test desde Windows');
         } else {
-          notif("Test desde Mac");
+          notif('Test desde Mac');
         }
       },
     },
     {
-      label: "Randomizer",
+      label: 'Randomizer',
       click() {
         try {
-          let win = new BrowserWindow({});
-          win.loadURL(`https://marioramos.es/utils/randomizer`);
+          const win = new BrowserWindow({});
+          win.loadURL('https://marioramos.es/utils/randomizer');
         } catch (error) {
-          console.log(error);
+          // console.log(error);
         }
       },
     },
     {
-      label: "Bloqueo suspensión",
+      label: 'Bloqueo suspensión',
       visible: isWin,
       submenu: [
         {
-          label: "Ver programas que bloquean",
+          label: 'Ver programas que bloquean',
           click() {
-            exec("start cmd.exe /K powercfg -requests");
+            exec('start cmd.exe /K powercfg -requests');
           },
         },
         {
-          label: "Bloquear",
+          label: 'Bloquear',
           click() {
             if (!idBloqueoSuspension) {
               idBloqueoSuspension = powerSaveBlocker.start('prevent-app-suspension');
-              notif("Bloqueo activado");
+              notif('Bloqueo activado');
             } else {
-              notif("Bloqueo ya activo");
+              notif('Bloqueo ya activo');
             }
           },
         },
         {
-          label: "Desbloquear",
+          label: 'Desbloquear',
           click() {
             powerSaveBlocker.stop(idBloqueoSuspension);
             if (!powerSaveBlocker.isStarted(idBloqueoSuspension)) {
               idBloqueoSuspension = 0;
-              notif("Bloqueo desactivado");
+              notif('Bloqueo desactivado');
             } else {
-              notif("No se pudo desbloquear");
+              notif('No se pudo desbloquear');
             }
           },
-        }
-      ]
+        },
+      ],
     },
     {
-      label: "WoL Torre",
+      label: 'WoL Torre',
       click() {
-        const wol = require('wake_on_lan');
-        wol.wake(macs.torre, { address: ips.torre }, function (error) {
+        wol.wake(macs.torre, { address: ips.torre }, (error) => {
           if (error) {
-            notif("Error en WoL: " + error);
+            notif(`Error en WoL: ${error}`);
           } else {
-            notif("WoL correcto");
+            notif('WoL correcto');
           }
         });
       },
     },
     {
-      label: "Aire",
+      label: 'Aire/Estufa',
       click() {
-        turnOnOff(ips.aire)
+        turnOnOff(ips.aire);
       },
     },
     {
-      label: "Leds",
+      label: 'Leds',
       click() {
-        turnOnOff(ips.leds)
+        turnOnOff(ips.leds);
       },
     },
     {
-      label: "Bola",
+      label: 'Bola',
       click() {
-        turnOnOff(ips.bola)
+        turnOnOff(ips.bola);
       },
     },
     {
-      label: "Bola y Leds",
+      label: 'Bola y Leds',
       click() {
-        turnOnOff(ips.bola)
-        turnOnOff(ips.leds)
+        turnOnOff(ips.bola);
+        turnOnOff(ips.leds);
       },
     },
     {
-      label: "Apagar en...",
+      label: 'Apagar en...',
       visible: isWin,
       submenu: [
         {
           label: 'Cancelar apagado',
           click() {
-            exec("shutdown /a");
-          }
+            exec('shutdown /a');
+          },
         },
         {
           label: '15 minutos',
           click() {
-            shutdown(900)
-          }
+            shutdown(900);
+          },
         },
         {
           label: '30 minutos',
           click() {
-            shutdown(1800)
-          }
+            shutdown(1800);
+          },
         },
         {
           label: '1 hora',
           click() {
-            shutdown(3600)
-          }
+            shutdown(3600);
+          },
         },
         {
           label: '2 horas',
           click() {
-            shutdown(3600 * 2)
-          }
+            shutdown(3600 * 2);
+          },
         },
         {
           label: '4 horas',
           click() {
-            shutdown(3600 * 4)
-          }
-        }
+            shutdown(3600 * 4);
+          },
+        },
       ],
     },
     {
-      label: "Lolete",
+      label: 'Lolete',
       visible: isWin,
       click() {
         if (isWin) {
-          exec("C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe");
-          exec("\"E:\\Games\\Riot Games\\Riot Client\\RiotClientServices.exe\" --launch-product=league_of_legends --launch-patchline=live");
-          //exec("C:\\Users\\mario\\AppData\\Local\\Programs\\Blitz\\Blitz.exe");
+          exec('C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe');
+          exec('"E:\\Games\\Riot Games\\Riot Client\\RiotClientServices.exe" --launch-product=league_of_legends --launch-patchline=live');
+          // exec("C:\\Users\\mario\\AppData\\Local\\Programs\\Blitz\\Blitz.exe");
         } else {
-          //exec("open -a Blitz");
-          exec("open -a LeagueClient");
+          // exec("open -a Blitz");
+          exec('open -a LeagueClient');
         }
       },
     },
     {
-      label: "No IDLE",
+      label: 'No IDLE',
       visible: isWin,
       click() {
         if (isWin) {
-          execNoIdle = exec("node C:\\REPOS\\NodeUtils\\src\\NoIdle.js");
-          notif("No IDLE iniciado", "Mueve manualmente el cursor para desactivarlo");
+          exec('node C:\\REPOS\\NodeUtils\\src\\NoIdle.js');
+          notif('No IDLE iniciado', 'Mueve manualmente el cursor para desactivarlo');
         } else {
-          notif("TODO");
+          notif('TODO');
         }
       },
     },
     {
-      label: "Salir",
+      label: 'Salir',
       click() {
         app.quit();
       },
@@ -220,12 +222,12 @@ app.on("ready", () => {
   tray.setToolTip("Mario's Utils");
   tray.setContextMenu(menu);
   tray.setIgnoreDoubleClickEvents(true);
-  tray.on('click', function (e) {
+  tray.on('click', () => {
     turnOnOff(ips.leds);
     turnOnOff(ips.bola);
   });
 });
 
 if (!isWin) app.dock.hide();
-app.setAppUserModelId(process.execPath)
-app.on('window-all-closed', e => e.preventDefault())
+app.setAppUserModelId(process.execPath);
+app.on('window-all-closed', (e) => e.preventDefault());
