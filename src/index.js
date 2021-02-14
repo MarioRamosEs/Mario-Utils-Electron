@@ -61,6 +61,18 @@ app.on('ready', () => {
       },
     },
     {
+      label: 'Tracker Trabajo',
+      visible: isWin,
+      click() {
+        try {
+          const win = new BrowserWindow({});
+          win.loadURL('https://trackertrabajo.marioramos.es/');
+        } catch (error) {
+          // console.log(error);
+        }
+      },
+    },
+    {
       label: 'Randomizer',
       click() {
         try {
