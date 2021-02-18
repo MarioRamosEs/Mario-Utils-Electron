@@ -6,13 +6,14 @@ const { exec } = require('child_process');
 const { Client } = require('tplink-smarthome-api');
 const wol = require('wake_on_lan');
 const { version } = require('../package');
+const prompt = require('electron-prompt');
 
 const isWin = process.platform === 'win32';
 const ips = {
   aire: '192.168.1.128',
   leds: '192.168.1.129',
   bola: '192.168.1.144',
-  torre: '192.168.1.135',
+  torre: '192.168.1.145',
 };
 const macs = {
   torre: 'E0:D5:5E:89:3C:22',
@@ -117,6 +118,27 @@ app.on('ready', () => {
           },
         },
       ],
+    },
+    {
+      label: 'WoL Manual',
+      click() {
+        prompt({
+          title: 'Prompt IP',
+          label: 'IP:',
+          value: '192.168.1.145',
+        })
+          .then((r) => {
+            console.log('result', r); // null if window was closed, or user clicked Cancel
+            wol.wake(macs.torre, { address: r }, (error) => {
+              if (error) {
+                notif(`Error en WoL: ${error}`);
+              } else {
+                notif('WoL correcto ' + r);
+              }
+            });
+          })
+          .catch(console.error);
+      },
     },
     {
       label: 'WoL Torre',

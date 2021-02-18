@@ -1,6 +1,6 @@
 {
   "name": "mario-utils-electron",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "",
   "main": "./src/index.js",
   "scripts": {
@@ -11,9 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "electron": "^10.1.0",
+    "electron-prompt": "^1.6.1",
     "ps-tree": "^1.2.0",
     "tplink-smarthome-api": "^2.0.0",
-    "electron": "^10.1.0",
     "wake_on_lan": "^1.0.0"
   },
   "devDependencies": {
