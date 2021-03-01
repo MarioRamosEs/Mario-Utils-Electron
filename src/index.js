@@ -7,14 +7,13 @@ const { Client } = require('tplink-smarthome-api');
 const wol = require('wake_on_lan');
 const { version } = require('../package');
 const prompt = require('electron-prompt');
-const ps = require('ps-node');
 
 const isWin = process.platform === 'win32';
 const ips = {
   aire: '192.168.1.128',
   leds: '192.168.1.129',
   bola: '192.168.1.144',
-  torre: '192.168.1.145',
+  torre: '192.168.1.135',
 };
 const macs = {
   torre: 'E0:D5:5E:89:3C:22',
@@ -45,25 +44,12 @@ function shutdown(timeInSeconds) {
 async function turnOnOff(deviceIp) {
   const device = await client.getDevice({ host: deviceIp });
   const powerState = await device.getPowerState();
+  notif('Device turned '+powerState?'off':'on');
   device.setPowerState(!powerState);
-}
-
-function checkPockIsRunning(){
-  ps.lookup({}, function(err, resultList ) {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    let pockProcess = resultList.find(p => p.command === '/Applications/Pock.app/Contents/MacOS/Pock');
-    if(!pockProcess){
-      exec('/Applications/Pock.app/Contents/MacOS/Pock');
-    }
-});
 }
 
 app.on('ready', () => {
   tray = new Tray(path.join(__dirname, './../assets/icon.png'));
-  if(!isWin) setTimeout(checkPockIsRunning, 10000);
 
   const menu = Menu.buildFromTemplate([
     {
