@@ -121,12 +121,13 @@ app.on('ready', () => {
       ],
     },
     {
-      label: 'WoL Manual',
+      label: 'WoL Manual', //Hided
+      visible: false,
       click() {
         prompt({
           title: 'Prompt IP',
           label: 'IP:',
-          value: '192.168.1.145',
+          value: '192.168.1.135',
         })
           .then((r) => {
             console.log('result', r); // null if window was closed, or user clicked Cancel
