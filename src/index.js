@@ -41,10 +41,10 @@ function shutdown(timeInSeconds) {
   }
 }
 
-async function turnOnOff(deviceIp) {
+async function turnOnOff(deviceIp, doNotif = false) {
   const device = await client.getDevice({ host: deviceIp });
   const powerState = await device.getPowerState();
-  notif('Device turned '+powerState?'off':'on');
+  if(doNotif) notif('Device turned '+(powerState?'off':'on'));
   device.setPowerState(!powerState);
 }
 
@@ -157,7 +157,7 @@ app.on('ready', () => {
     {
       label: 'Aire/Estufa',
       click() {
-        turnOnOff(ips.aire);
+        turnOnOff(ips.aire, true);
       },
     },
     {
