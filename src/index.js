@@ -70,7 +70,20 @@ app.on('ready', () => {
           const win = new BrowserWindow({});
           win.loadURL('https://trackertrabajo.marioramos.es/');
         } catch (error) {
-          // console.log(error);
+          notif('Error', error);
+        }
+      },
+    },
+    {
+      label: 'Plegar',
+      visible: isWin,
+      click() {
+        try {
+          shutdown(1800);
+          exec('node C:\\REPOS\\NodeUtils\\src\\NoIdle.js');
+          notif('Modo plegar iniciado');
+        } catch (error) {
+          notif('Error', error);
         }
       },
     },
@@ -81,7 +94,7 @@ app.on('ready', () => {
           const win = new BrowserWindow({});
           win.loadURL('https://marioramos.es/utils/randomizer');
         } catch (error) {
-          // console.log(error);
+          notif('Error', error);
         }
       },
     },
