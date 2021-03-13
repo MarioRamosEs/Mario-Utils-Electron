@@ -261,6 +261,21 @@ app.on('ready', () => {
       },
     },
     {
+      label: 'Cerrar todas las apps',
+      visible: !isWin,
+      click() {
+          exec('open /Users/marioramos/Repos/Mario-Utils-Electron/QuitAllApps.app');
+      },
+    },
+    {
+      label: 'Iniciar Paralels',
+      visible: !isWin,
+      click() {
+          exec('sudo -b /Applications/Parallels\ Desktop.app/Contents/MacOS/prl_client_app');
+          notif('Paralells iniciando...');
+      },
+    },
+    {
       label: 'Salir',
       click() {
         app.quit();
