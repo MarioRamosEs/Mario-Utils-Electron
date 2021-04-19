@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const path = require('path');
 const {
   app, Menu, Tray, Notification, powerSaveBlocker, BrowserWindow,
@@ -5,8 +6,8 @@ const {
 const { exec } = require('child_process');
 const { Client } = require('tplink-smarthome-api');
 const wol = require('wake_on_lan');
-const { version } = require('../package');
 const prompt = require('electron-prompt');
+const { version } = require('../package');
 
 const isWin = process.platform === 'win32';
 const ips = {
@@ -44,7 +45,7 @@ function shutdown(timeInSeconds) {
 async function turnOnOff(deviceIp, doNotif = false) {
   const device = await client.getDevice({ host: deviceIp });
   const powerState = await device.getPowerState();
-  if(doNotif) notif('Device turned '+(powerState?'off':'on'));
+  if (doNotif) notif(`Device turned ${powerState ? 'off' : 'on'}`);
   device.setPowerState(!powerState);
 }
 
@@ -75,12 +76,25 @@ app.on('ready', () => {
       },
     },
     {
+      label: 'Iniciar Trabajo',
+      visible: isWin,
+      click() {
+        try {
+          exec('code C:\\Users\\mario\\Documents\\GitHub\\hipo-front');
+          exec('github C:\\Users\\mario\\Documents\\GitHub\\hipo-front');
+          exec('C:\\Users\\mario\\Documents\\GitHub\\hipo-back-2\\NHCore.sln');
+        } catch (error) {
+          notif('Error', error);
+        }
+      },
+    },
+    {
       label: 'Plegar',
       visible: isWin,
       click() {
         try {
           shutdown(1800);
-          exec('node C:\\REPOS\\NodeUtils\\src\\NoIdle.js');
+          exec('node C:\\Users\\mario\\Documents\\GitHub\\NodeUtils\\src\\NoIdle.js');
           notif('Modo plegar iniciado');
         } catch (error) {
           notif('Error', error);
@@ -134,7 +148,7 @@ app.on('ready', () => {
       ],
     },
     {
-      label: 'WoL Manual', //Hided
+      label: 'WoL Manual', // Hided
       visible: false,
       click() {
         prompt({
@@ -148,7 +162,7 @@ app.on('ready', () => {
               if (error) {
                 notif(`Error en WoL: ${error}`);
               } else {
-                notif('WoL correcto ' + r);
+                notif(`WoL correcto ${r}`);
               }
             });
           })
@@ -264,15 +278,15 @@ app.on('ready', () => {
       label: 'Cerrar todas las apps',
       visible: !isWin,
       click() {
-          exec('open /Users/marioramos/Repos/Mario-Utils-Electron/QuitAllApps.app');
+        exec('open /Users/marioramos/Repos/Mario-Utils-Electron/QuitAllApps.app');
       },
     },
     {
       label: 'Iniciar Paralels',
       visible: !isWin,
       click() {
-          exec('sudo -b /Applications/Parallels\ Desktop.app/Contents/MacOS/prl_client_app');
-          notif('Paralells iniciando...');
+        exec('sudo -b /Applications/Parallels\ Desktop.app/Contents/MacOS/prl_client_app');
+        notif('Paralells iniciando...');
       },
     },
     {
