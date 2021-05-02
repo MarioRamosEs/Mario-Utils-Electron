@@ -8,6 +8,7 @@ const { Client } = require('tplink-smarthome-api');
 const wol = require('wake_on_lan');
 const prompt = require('electron-prompt');
 const { version } = require('../package');
+const clipboardy = require('clipboardy');
 
 const isWin = process.platform === 'win32';
 const ips = {
@@ -64,42 +65,64 @@ app.on('ready', () => {
       },
     },
     {
-      label: 'Tracker Trabajo',
-      visible: isWin,
-      click() {
-        try {
-          const win = new BrowserWindow({});
-          win.loadURL('https://trackertrabajo.marioramos.es/');
-        } catch (error) {
-          notif('Error', error);
+      label: 'Portapapeles',
+      visible: true,
+      submenu: [
+        {
+          label: 'Quitar saltos de línea',
+          click() {
+            try {
+              let temp = clipboardy.readSync();
+              temp = temp.replace(/(\r\n|\n|\r)/gm, "").trim();
+              clipboardy.writeSync(temp);
+              notif('Saltos de linea quitados');
+            } catch (error) {
+              notif('Error', error);
+            }
+          },
         }
-      },
+      ]
     },
     {
-      label: 'Iniciar Trabajo',
+      label: 'Trabajo',
       visible: isWin,
-      click() {
-        try {
-          exec('code C:\\Users\\mario\\Documents\\GitHub\\hipo-front');
-          exec('github C:\\Users\\mario\\Documents\\GitHub\\hipo-front');
-          exec('C:\\Users\\mario\\Documents\\GitHub\\hipo-back-2\\NHCore.sln');
-        } catch (error) {
-          notif('Error', error);
-        }
-      },
-    },
-    {
-      label: 'Plegar',
-      visible: isWin,
-      click() {
-        try {
-          shutdown(1800);
-          exec('node C:\\Users\\mario\\Documents\\GitHub\\NodeUtils\\src\\NoIdle.js');
-          notif('Modo plegar iniciado');
-        } catch (error) {
-          notif('Error', error);
-        }
-      },
+      submenu: [
+        {
+          label: 'Tracker',
+          click() {
+            try {
+              const win = new BrowserWindow({});
+              win.loadURL('https://trackertrabajo.marioramos.es/');
+            } catch (error) {
+              notif('Error', error);
+            }
+          },
+        },
+        {
+          label: 'Iniciar',
+          click() {
+            try {
+              exec('code C:\\Users\\mario\\Documents\\GitHub\\hipo-front');
+              exec('github C:\\Users\\mario\\Documents\\GitHub\\hipo-front');
+              exec('C:\\Users\\mario\\Documents\\GitHub\\hipo-back-2\\NHCore.sln');
+            } catch (error) {
+              notif('Error', error);
+            }
+          },
+        },
+        {
+          label: 'Plegar',
+          click() {
+            try {
+              shutdown(1800);
+              exec('node C:\\Users\\mario\\Documents\\GitHub\\NodeUtils\\src\\NoIdle.js');
+              notif('Modo plegar iniciado');
+            } catch (error) {
+              notif('Error', error);
+            }
+          },
+        },
+      ]
     },
     {
       label: 'Randomizer',
@@ -250,7 +273,7 @@ app.on('ready', () => {
     },
     {
       label: 'Lolete',
-      visible: isWin,
+      visible: false,
       click() {
         if (isWin) {
           exec('C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe');
