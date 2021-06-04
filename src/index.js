@@ -72,9 +72,10 @@ app.on('ready', () => {
           label: 'Quitar saltos de línea',
           click() {
             try {
-              let temp = clipboardy.readSync();
-              temp = temp.replace(/(\r\n|\n|\r)/gm, "").trim();
-              clipboardy.writeSync(temp);
+              let content = clipboardy.readSync();
+              content = content.replace(/(\r\n|\n|\r)/gm, '').trim();
+              content = content.replace(/\t/g, ''); // Clear tabs
+              clipboardy.writeSync(content);
               notif('Saltos de linea quitados');
             } catch (error) {
               notif('Error', error);
