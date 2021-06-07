@@ -12,16 +12,14 @@ const clipboardy = require('clipboardy');
 
 const isWin = process.platform === 'win32';
 const ips = {
-  aire: '192.168.1.128',
-  leds: '192.168.1.129',
-  bola: '192.168.1.144',
+  aire2: '192.168.1.129',
+  luces: '192.168.1.144',
   torre: '192.168.1.135',
 };
 const macs = {
   torre: 'E0:D5:5E:89:3C:22',
-  aire: 'd8:0d:17:a1:7c:ed',
-  leds: 'b0:95:75:86:88:45',
-  bola: 'b0:95:75:86:8a:53',
+  aire2: 'b0:95:75:86:88:45',
+  luces: 'b0:95:75:86:8a:53',
 };
 
 const client = new Client();
@@ -72,10 +70,9 @@ app.on('ready', () => {
           label: 'Quitar saltos de línea',
           click() {
             try {
-              let content = clipboardy.readSync();
-              content = content.replace(/(\r\n|\n|\r)/gm, '').trim();
-              content = content.replace(/\t/g, ''); // Clear tabs
-              clipboardy.writeSync(content);
+              let temp = clipboardy.readSync();
+              temp = temp.replace(/(\r\n|\n|\r)/gm, "").trim();
+              clipboardy.writeSync(temp);
               notif('Saltos de linea quitados');
             } catch (error) {
               notif('Error', error);
@@ -208,26 +205,13 @@ app.on('ready', () => {
     {
       label: 'Aire/Estufa',
       click() {
-        turnOnOff(ips.aire, true);
+        turnOnOff(ips.aire2);
       },
     },
     {
-      label: 'Leds',
+      label: 'Luces',
       click() {
-        turnOnOff(ips.leds);
-      },
-    },
-    {
-      label: 'Bola',
-      click() {
-        turnOnOff(ips.bola);
-      },
-    },
-    {
-      label: 'Bola y Leds',
-      click() {
-        turnOnOff(ips.bola);
-        turnOnOff(ips.leds);
+        turnOnOff(ips.luces);
       },
     },
     {
@@ -325,8 +309,8 @@ app.on('ready', () => {
   tray.setContextMenu(menu);
   tray.setIgnoreDoubleClickEvents(true);
   tray.on('click', () => {
-    turnOnOff(ips.leds);
-    turnOnOff(ips.bola);
+    turnOnOff(ips.aire2);
+    turnOnOff(ips.luces);
   });
 });
 
