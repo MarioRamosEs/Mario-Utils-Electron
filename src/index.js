@@ -309,7 +309,6 @@ app.on('ready', () => {
   tray.setContextMenu(menu);
   tray.setIgnoreDoubleClickEvents(true);
   tray.on('click', () => {
-    turnOnOff(ips.aire2);
     turnOnOff(ips.luces);
   });
 });
