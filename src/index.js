@@ -7,8 +7,8 @@ const { exec } = require('child_process');
 const { Client } = require('tplink-smarthome-api');
 const wol = require('wake_on_lan');
 const prompt = require('electron-prompt');
-const { version } = require('../package');
 const clipboardy = require('clipboardy');
+const { version } = require('../package');
 
 const isWin = process.platform === 'win32';
 const ips = {
