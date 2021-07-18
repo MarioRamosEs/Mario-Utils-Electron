@@ -33,9 +33,9 @@ function notif(title, body = '') {
   }).show();
 }
 
-function shutdown(timeInSeconds) {
+function shutdown(timeInSeconds, restart = 'false') {
   if (isWin) {
-    exec(`shutdown /s /t ${timeInSeconds}`);
+    exec(`shutdown ${restart ? '/r' : '/s'} /t ${timeInSeconds}`);
   } else {
     notif('TODO');
   }
@@ -77,7 +77,31 @@ app.on('ready', () => {
             } catch (error) {
               notif('Error', error);
             }
-          },
+          }
+        },
+        {
+          label: 'Poner en mayúsculas',
+          click() {
+            try {
+              let temp = clipboardy.readSync();
+              clipboardy.writeSync(temp.toUpperCase());
+              notif('Portapeles en mayúsculas');
+            } catch (error) {
+              notif('Error', error);
+            }
+          }
+        },
+        {
+          label: 'Poner en minúsculas',
+          click() {
+            try {
+              let temp = clipboardy.readSync();
+              clipboardy.writeSync(temp.toLowerCase());
+              notif('Portapeles en mayúsculas');
+            } catch (error) {
+              notif('Error', error);
+            }
+          }
         }
       ]
     },
@@ -134,7 +158,7 @@ app.on('ready', () => {
       },
     },
     {
-      label: 'Bloqueo suspensión',
+      label: 'Bloqueo suspensión - ' + idBloqueoSuspension ? 'Activado' : 'Desactivado',
       visible: isWin,
       submenu: [
         {
@@ -225,6 +249,12 @@ app.on('ready', () => {
           },
         },
         {
+          label: '5 minutos',
+          click() {
+            shutdown(60 * 5);
+          },
+        }, ,
+        {
           label: '15 minutos',
           click() {
             shutdown(900);
@@ -252,6 +282,54 @@ app.on('ready', () => {
           label: '4 horas',
           click() {
             shutdown(3600 * 4);
+          },
+        },
+      ],
+    },
+    {
+      label: 'Reiniciar en...',
+      visible: isWin,
+      submenu: [
+        {
+          label: 'Cancelar reinicio',
+          click() {
+            exec('shutdown /a');
+          },
+        },
+        {
+          label: '5 minutos',
+          click() {
+            shutdown(60 * 5, true);
+          },
+        }, ,
+        {
+          label: '15 minutos',
+          click() {
+            shutdown(900, true);
+          },
+        },
+        {
+          label: '30 minutos',
+          click() {
+            shutdown(1800, true);
+          },
+        },
+        {
+          label: '1 hora',
+          click() {
+            shutdown(3600, true);
+          },
+        },
+        {
+          label: '2 horas',
+          click() {
+            shutdown(3600 * 2, true);
+          },
+        },
+        {
+          label: '4 horas',
+          click() {
+            shutdown(3600 * 4, true);
           },
         },
       ],
