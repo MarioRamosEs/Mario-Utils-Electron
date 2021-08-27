@@ -158,6 +158,16 @@ app.on('ready', () => {
       },
     },
     {
+      label: 'Limpiar TEMP',
+      click() {
+        try {
+          exec('del /q/f/s %TEMP%\\*');
+        } catch (error) {
+          notif('Error', error);
+        }
+      },
+    },
+    {
       label: 'Bloqueo suspensión - ' + idBloqueoSuspension ? 'Activado' : 'Desactivado',
       visible: isWin,
       submenu: [
