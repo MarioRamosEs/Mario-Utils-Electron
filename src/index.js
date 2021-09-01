@@ -67,43 +67,69 @@ app.on('ready', () => {
       visible: true,
       submenu: [
         {
+          label: 'Comillas dobles por comillas simples',
+          click() {
+            try {
+              let temp = clipboardy.readSync();
+              temp = temp.replace('"', "'").trim();
+              clipboardy.writeSync(temp);
+              notif('Comillas dobles cambiadas a simples');
+            } catch (error) {
+              notif('Error', error);
+            }
+          },
+        },
+        {
+          label: 'Comillas simples por comillas dobles',
+          click() {
+            try {
+              let temp = clipboardy.readSync();
+              temp = temp.replace("'", '"').trim();
+              clipboardy.writeSync(temp);
+              notif('Comillas simples cambiadas a dobles');
+            } catch (error) {
+              notif('Error', error);
+            }
+          },
+        },
+        {
           label: 'Quitar saltos de línea',
           click() {
             try {
               let temp = clipboardy.readSync();
-              temp = temp.replace(/(\r\n|\n|\r)/gm, "").trim();
+              temp = temp.replace(/(\r\n|\n|\r)/gm, '').trim();
               clipboardy.writeSync(temp);
               notif('Saltos de linea quitados');
             } catch (error) {
               notif('Error', error);
             }
-          }
+          },
         },
         {
           label: 'Poner en mayúsculas',
           click() {
             try {
-              let temp = clipboardy.readSync();
+              const temp = clipboardy.readSync();
               clipboardy.writeSync(temp.toUpperCase());
               notif('Portapeles en mayúsculas');
             } catch (error) {
               notif('Error', error);
             }
-          }
+          },
         },
         {
           label: 'Poner en minúsculas',
           click() {
             try {
-              let temp = clipboardy.readSync();
+              const temp = clipboardy.readSync();
               clipboardy.writeSync(temp.toLowerCase());
               notif('Portapeles en mayúsculas');
             } catch (error) {
               notif('Error', error);
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     },
     {
       label: 'Trabajo',
@@ -144,7 +170,7 @@ app.on('ready', () => {
             }
           },
         },
-      ]
+      ],
     },
     {
       label: 'Randomizer',
@@ -168,7 +194,7 @@ app.on('ready', () => {
       },
     },
     {
-      label: 'Bloqueo suspensión - ' + idBloqueoSuspension ? 'Activado' : 'Desactivado',
+      label: `Bloqueo suspensión - ${idBloqueoSuspension}` ? 'Activado' : 'Desactivado',
       visible: isWin,
       submenu: [
         {
@@ -263,7 +289,7 @@ app.on('ready', () => {
           click() {
             shutdown(60 * 5);
           },
-        }, ,
+        },
         {
           label: '15 minutos',
           click() {
@@ -311,7 +337,7 @@ app.on('ready', () => {
           click() {
             shutdown(60 * 5, true);
           },
-        }, ,
+        },
         {
           label: '15 minutos',
           click() {
