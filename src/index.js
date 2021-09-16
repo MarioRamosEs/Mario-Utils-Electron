@@ -33,6 +33,10 @@ function notif(title, body = '') {
   }).show();
 }
 
+function iniciarSQLServer() {
+  exec('net start MSSQL$SQLEXPRESS');
+}
+
 function shutdown(timeInSeconds, restart = 'false') {
   if (isWin) {
     exec(`shutdown ${restart ? '/r' : '/s'} /t ${timeInSeconds}`);
@@ -185,9 +189,21 @@ app.on('ready', () => {
     },
     {
       label: 'Limpiar TEMP',
+      visible: isWin,
       click() {
         try {
           exec('del /q/f/s %TEMP%\\*');
+        } catch (error) {
+          notif('Error', error);
+        }
+      },
+    },
+    {
+      label: 'Reiniciar SQL Server',
+      visible: isWin,
+      click() {
+        try {
+          exec('net stop MSSQL$SQLEXPRESS', iniciarSQLServer());
         } catch (error) {
           notif('Error', error);
         }
@@ -407,7 +423,7 @@ app.on('ready', () => {
       label: 'Iniciar Paralels',
       visible: !isWin,
       click() {
-        exec('sudo -b /Applications/Parallels\ Desktop.app/Contents/MacOS/prl_client_app');
+        exec('sudo -b /Applications/Parallels Desktop.app/Contents/MacOS/prl_client_app');
         notif('Paralells iniciando...');
       },
     },
