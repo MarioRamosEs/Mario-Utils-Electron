@@ -174,6 +174,16 @@ app.on('ready', () => {
             }
           },
         },
+        {
+          label: 'Reiniciar SQL Server',
+          click() {
+            try {
+              exec('net stop MSSQL$SQLEXPRESS', iniciarSQLServer());
+            } catch (error) {
+              notif('Error', error);
+            }
+          },
+        },
       ],
     },
     {
@@ -193,17 +203,6 @@ app.on('ready', () => {
       click() {
         try {
           exec('del /q/f/s %TEMP%\\*');
-        } catch (error) {
-          notif('Error', error);
-        }
-      },
-    },
-    {
-      label: 'Reiniciar SQL Server',
-      visible: isWin,
-      click() {
-        try {
-          exec('net stop MSSQL$SQLEXPRESS', iniciarSQLServer());
         } catch (error) {
           notif('Error', error);
         }
