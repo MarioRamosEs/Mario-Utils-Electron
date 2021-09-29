@@ -35,6 +35,7 @@ function notif(title, body = '') {
 
 function iniciarSQLServer() {
   exec('net start MSSQL$SQLEXPRESS');
+  notif('SQL Server reiniciado');
 }
 
 function shutdown(timeInSeconds, restart = 'false') {
@@ -178,6 +179,7 @@ app.on('ready', () => {
           label: 'Reiniciar SQL Server',
           click() {
             try {
+              notif('Reiniciando SQL server...');
               exec('net stop MSSQL$SQLEXPRESS', iniciarSQLServer());
             } catch (error) {
               notif('Error', error);
