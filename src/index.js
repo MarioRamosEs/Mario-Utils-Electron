@@ -12,9 +12,9 @@ const { version } = require('../package');
 
 const isWin = process.platform === 'win32';
 const ips = {
-  aire2: '192.168.1.129',
-  luces: '192.168.1.144',
-  torre: '192.168.1.135',
+  aire2: '192.168.0.19',
+  luces: '192.168.0.18',
+  torre: '192.168.1.135', //TODO: Change
 };
 const macs = {
   torre: 'E0:D5:5E:89:3C:22',
