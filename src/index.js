@@ -25,6 +25,7 @@ const macs = {
 const client = new Client();
 let tray = null;
 let idBloqueoSuspension = 0;
+let _isDoubleClickEvent = false;
 
 function notif(title, body = '') {
   new Notification({
@@ -44,6 +45,25 @@ function shutdown(timeInSeconds, restart = 'false') {
   } else {
     notif('TODO');
   }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function SingleClickAsync() {
+  await sleep(200);
+  if (_isDoubleClickEvent) return;
+  // Put your code here
+  turnOnOff(ips.luces);
+}
+
+async function DoubleClickAsync() {
+  _isDoubleClickEvent = true;
+  await sleep(215);
+  _isDoubleClickEvent = false;
+  turnOnOff(ips.aire2);
+  // Put your code here
 }
 
 async function turnOnOff(deviceIp, doNotif = false) {
@@ -439,9 +459,8 @@ app.on('ready', () => {
   tray.setToolTip("Mario's Utils");
   tray.setContextMenu(menu);
   tray.setIgnoreDoubleClickEvents(true);
-  tray.on('click', () => {
-    turnOnOff(ips.luces);
-  });
+  tray.on('click', () => { SingleClickAsync() });
+  tray.on('double-click', () => { DoubleClickAsync() });
 });
 
 if (!isWin) app.dock.hide();
