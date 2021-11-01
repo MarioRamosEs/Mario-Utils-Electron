@@ -14,7 +14,7 @@ const isWin = process.platform === 'win32';
 const ips = {
   aire2: '192.168.0.19',
   luces: '192.168.0.18',
-  torre: '192.168.1.135', //TODO: Change
+  torre: '192.168.1.135', // TODO: Change
 };
 const macs = {
   torre: 'E0:D5:5E:89:3C:22',
@@ -25,7 +25,7 @@ const macs = {
 const client = new Client();
 let tray = null;
 let idBloqueoSuspension = 0;
-let _isDoubleClickEvent = false;
+let isDoubleClickEvent = false;
 
 function notif(title, body = '') {
   new Notification({
@@ -40,30 +40,12 @@ function iniciarSQLServer() {
 }
 
 function shutdown(timeInSeconds, restart = 'false') {
-  if (isWin) {
-    exec(`shutdown ${restart ? '/r' : '/s'} /t ${timeInSeconds}`);
-  } else {
-    notif('TODO');
-  }
+  if (isWin) exec(`shutdown ${restart ? '/r' : '/s'} /t ${timeInSeconds}`);
+  else notif('TODO');
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function SingleClickAsync() {
-  await sleep(200);
-  if (_isDoubleClickEvent) return;
-  // Put your code here
-  turnOnOff(ips.luces);
-}
-
-async function DoubleClickAsync() {
-  _isDoubleClickEvent = true;
-  await sleep(215);
-  _isDoubleClickEvent = false;
-  turnOnOff(ips.aire2);
-  // Put your code here
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function turnOnOff(deviceIp, doNotif = false) {
@@ -71,6 +53,25 @@ async function turnOnOff(deviceIp, doNotif = false) {
   const powerState = await device.getPowerState();
   if (doNotif) notif(`Device turned ${powerState ? 'off' : 'on'}`);
   device.setPowerState(!powerState);
+}
+
+async function singleClickAsync() {
+  await sleep(200);
+  if (isDoubleClickEvent) return;
+  turnOnOff(ips.luces);
+}
+
+async function doubleClickAsync() {
+  isDoubleClickEvent = true;
+  await sleep(215);
+  isDoubleClickEvent = false;
+  turnOnOff(ips.aire2);
+}
+
+async function sleepComputer(ms) {
+  if (!isWin) return;
+  await sleep(ms);
+  exec('nircmd.exe standby');
 }
 
 app.on('ready', () => {
@@ -109,7 +110,9 @@ app.on('ready', () => {
           click() {
             try {
               let temp = clipboardy.readSync();
-              temp = temp.replace("'", '"').trim();
+              while (temp.length > 0 && temp.indexOf('"') !== -1) {
+                temp = temp.replace("'", '"').trim();
+              }
               clipboardy.writeSync(temp);
               notif('Comillas simples cambiadas a dobles');
             } catch (error) {
@@ -123,6 +126,7 @@ app.on('ready', () => {
             try {
               let temp = clipboardy.readSync();
               temp = temp.replace(/(\r\n|\n|\r)/gm, '').trim();
+              temp = temp.replace(/\s\s+/g, ' ');
               clipboardy.writeSync(temp);
               notif('Saltos de linea quitados');
             } catch (error) {
@@ -275,7 +279,6 @@ app.on('ready', () => {
           value: '192.168.1.135',
         })
           .then((r) => {
-            console.log('result', r); // null if window was closed, or user clicked Cancel
             wol.wake(macs.torre, { address: r }, (error) => {
               if (error) {
                 notif(`Error en WoL: ${error}`);
@@ -408,6 +411,48 @@ app.on('ready', () => {
       ],
     },
     {
+      label: 'Suspender en...',
+      visible: isWin,
+      submenu: [
+        {
+          label: '5 minutos',
+          click() {
+            sleepComputer(60 * 5);
+          },
+        },
+        {
+          label: '15 minutos',
+          click() {
+            sleepComputer(900, true);
+          },
+        },
+        {
+          label: '30 minutos',
+          click() {
+            sleepComputer(1800, true);
+          },
+        },
+        {
+          label: '1 hora',
+          click() {
+            sleepComputer(3600, true);
+          },
+        },
+        {
+          label: '2 horas',
+          click() {
+            sleepComputer(3600 * 2, true);
+          },
+        },
+        {
+          label: '4 horas',
+          click() {
+            sleepComputer(3600 * 4, true);
+          },
+        },
+      ],
+    },
+    {
       label: 'Lolete',
       visible: false,
       click() {
@@ -459,8 +504,8 @@ app.on('ready', () => {
   tray.setToolTip("Mario's Utils");
   tray.setContextMenu(menu);
   tray.setIgnoreDoubleClickEvents(true);
-  tray.on('click', () => { SingleClickAsync() });
-  tray.on('double-click', () => { DoubleClickAsync() });
+  tray.on('click', () => { singleClickAsync(); });
+  tray.on('double-click', () => { doubleClickAsync(); });
 });
 
 if (!isWin) app.dock.hide();
