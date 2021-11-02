@@ -14,7 +14,7 @@ const isWin = process.platform === 'win32';
 const ips = {
   aire2: '192.168.0.19',
   luces: '192.168.0.18',
-  torre: '192.168.1.135', // TODO: Change
+  torre: '192.168.0.255',
 };
 const macs = {
   torre: 'E0:D5:5E:89:3C:22',
