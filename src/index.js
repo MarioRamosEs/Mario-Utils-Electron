@@ -51,8 +51,8 @@ function sleep(ms) {
 async function turnOnOff(deviceIp, doNotif = false) {
   const device = await client.getDevice({ host: deviceIp });
   const powerState = await device.getPowerState();
+  await device.setPowerState(!powerState);
   if (doNotif) notif(`Device turned ${powerState ? 'off' : 'on'}`);
-  device.setPowerState(!powerState);
 }
 
 async function singleClickAsync() {
@@ -65,7 +65,7 @@ async function doubleClickAsync() {
   isDoubleClickEvent = true;
   await sleep(215);
   isDoubleClickEvent = false;
-  turnOnOff(ips.aire2);
+  turnOnOff(ips.aire2, true);
 }
 
 async function sleepComputer(ms) {
@@ -305,7 +305,7 @@ app.on('ready', () => {
     {
       label: 'Aire/Estufa',
       click() {
-        turnOnOff(ips.aire2);
+        turnOnOff(ips.aire2, true);
       },
     },
     {
