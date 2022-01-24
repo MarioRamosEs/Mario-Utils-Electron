@@ -48,11 +48,24 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function getPowerState(deviceIp) {
+  const device = await client.getDevice({ host: deviceIp });
+  const powerState = await device.getPowerState();
+  return powerState;
+}
+
 async function turnOnOff(deviceIp, doNotif = false) {
   const device = await client.getDevice({ host: deviceIp });
   const powerState = await device.getPowerState();
   await device.setPowerState(!powerState);
   if (doNotif) notif(`Device turned ${powerState ? 'off' : 'on'}`);
+  return !powerState;
+}
+
+async function programmedTurnOnOff(deviceIp, timeInSeconds) {
+  const powerState = await turnOnOff(deviceIp, true);
+  await sleep(timeInSeconds * 1000);
+  if (await getPowerState(deviceIp) === powerState) await turnOnOff(deviceIp, true);
 }
 
 async function singleClickAsync() {
@@ -235,7 +248,7 @@ app.on('ready', () => {
       },
     },
     {
-      label: `Bloqueo suspensión - ${idBloqueoSuspension}` ? 'Activado' : 'Desactivado',
+      label: `Bloqueo suspensión - ${idBloqueoSuspension ? 'Activado' : 'Desactivado'}`,
       visible: isWin,
       submenu: [
         {
@@ -307,6 +320,27 @@ app.on('ready', () => {
       click() {
         turnOnOff(ips.aire2, true);
       },
+    },
+    {
+      label: 'Aire/Estufa temporizado',
+      submenu: [
+        {
+          label: '5 minutos',
+          click: () => programmedTurnOnOff(ips.aire2, 60 * 5),
+        },
+        {
+          label: '15 minutos',
+          click: () => programmedTurnOnOff(ips.aire2, 900),
+        },
+        {
+          label: '30 minutos',
+          click: () => programmedTurnOnOff(ips.aire2, 1800),
+        },
+        {
+          label: '1 hora',
+          click: () => programmedTurnOnOff(ips.aire2, 3600),
+        },
+      ],
     },
     {
       label: 'Luces',
