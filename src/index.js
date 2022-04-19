@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable linebreak-style */
 const path = require('path');
 const {
@@ -175,7 +176,7 @@ app.on('ready', () => {
     },
     {
       label: 'Trabajo',
-      visible: isWin,
+      visible: true,
       submenu: [
         {
           label: 'Tracker',
@@ -190,6 +191,7 @@ app.on('ready', () => {
         },
         {
           label: 'Iniciar',
+          visible: isWin,
           click() {
             try {
               exec('code C:\\Users\\mario\\Documents\\GitHub\\hipo-front');
@@ -202,6 +204,7 @@ app.on('ready', () => {
         },
         {
           label: 'Plegar',
+          visible: isWin,
           click() {
             try {
               shutdown(1800);
@@ -214,6 +217,7 @@ app.on('ready', () => {
         },
         {
           label: 'Reiniciar SQL Server',
+          visible: isWin,
           click() {
             try {
               notif('Reiniciando SQL server...');
