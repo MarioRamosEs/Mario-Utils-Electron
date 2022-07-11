@@ -227,6 +227,18 @@ app.on('ready', () => {
             }
           },
         },
+        {
+          label: 'Cerrar Docker',
+          visible: !isWin,
+          click() {
+            try {
+              exec('osascript -e \'quit app "Docker"\'');
+              notif('Docker cerrado');
+            } catch (error) {
+              notif('Error', error);
+            }
+          },
+        },
       ],
     },
     {
