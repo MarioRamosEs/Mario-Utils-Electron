@@ -2,7 +2,7 @@
 /* eslint-disable linebreak-style */
 const path = require('path');
 const {
-  app, Menu, Tray, Notification, powerSaveBlocker, BrowserWindow,
+  app, Menu, Tray, Notification, powerSaveBlocker, BrowserWindow, nativeTheme
 } = require('electron');
 const { exec } = require('child_process');
 const { Client } = require('tplink-smarthome-api');
@@ -38,6 +38,18 @@ function notif(title, body = '') {
 function iniciarSQLServer() {
   exec('net start MSSQL$SQLEXPRESS');
   notif('SQL Server reiniciado');
+}
+
+function changeOsTheme() {
+  try {
+    if (nativeTheme.shouldUseDarkColors){
+      exec(`osascript -l JavaScript -e "Application('System Events').appearancePreferences.darkMode = false"`);
+    }else{
+      exec(`osascript -l JavaScript -e "Application('System Events').appearancePreferences.darkMode = true"`);
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function shutdown(timeInSeconds, restart = 'false') {
@@ -240,6 +252,13 @@ app.on('ready', () => {
           },
         },
       ],
+    },
+    {
+      label: 'Modo Oscuro/Claro',
+      visible: !isWin,
+      click() {
+        changeOsTheme();
+      },
     },
     {
       label: 'Randomizer',
