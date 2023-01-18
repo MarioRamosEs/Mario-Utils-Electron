@@ -1,12 +1,13 @@
 {
   "name": "mario-utils-electron",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "",
   "main": "./src/index.js",
   "scripts": {
     "start": "electron .",
     "serve": "electron .",
-    "lint": "eslint --fix ."
+    "lint": "eslint --fix .",
+    "rebuild-robojs": "electron-rebuild -f -w robojs"
   },
   "author": "",
   "license": "ISC",

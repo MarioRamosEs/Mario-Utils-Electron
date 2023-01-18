@@ -224,7 +224,7 @@ app.on('ready', () => {
           click() {
             try {
               const win = new BrowserWindow({});
-              win.loadURL('https://trackertrabajo.marioramos.es/');
+              win.loadURL('https://jobtracker.marioramos.es/');
             } catch (error) {
               notif('Error', error);
             }
@@ -381,12 +381,14 @@ app.on('ready', () => {
     },
     {
       label: 'Aire/Estufa',
+      visible: false,
       click() {
         turnOnOff(ips.aire2, true);
       },
     },
     {
       label: 'Aire/Estufa temporizado',
+      visible: false,
       submenu: [
         {
           label: '5 minutos',
@@ -408,6 +410,7 @@ app.on('ready', () => {
     },
     {
       label: 'Luces',
+      visible: false,
       click() {
         turnOnOff(ips.luces);
       },
