@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AMApplicationBuild</key>
-	<string>509</string>
+	<string>520</string>
 	<key>AMApplicationVersion</key>
 	<string>2.10</string>
 	<key>AMDocumentVersion</key>
@@ -55,12 +55,12 @@
 				<key>ActionBundlePath</key>
 				<string>/System/Library/Automator/Run Shell Script.action</string>
 				<key>ActionName</key>
-				<string>Ejecutar el script Shell</string>
+				<string>Run Shell Script</string>
 				<key>ActionParameters</key>
 				<dict>
 					<key>COMMAND_STRING</key>
 					<string>export PATH=/usr/local/bin:$PATH
-cd ~/Repos/Mario-Utils-Electron
+cd ~/Documents/Repos/Mario-Utils-Electron
 npm run serve</string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>
@@ -91,8 +91,8 @@ npm run serve</string>
 				<array>
 					<string>Shell</string>
 					<string>Script</string>
-					<string>Comando</string>
-					<string>Ejecutar</string>
+					<string>Command</string>
+					<string>Run</string>
 					<string>Unix</string>
 				</array>
 				<key>OutputUUID</key>
@@ -171,8 +171,6 @@ npm run serve</string>
 						<string>4</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
