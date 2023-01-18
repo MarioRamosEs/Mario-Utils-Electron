@@ -120,7 +120,8 @@ async function doubleClickAsync() {
   isDoubleClickEvent = true;
   await sleep(215);
   isDoubleClickEvent = false;
-  turnOnOff(ips.aire2, true);
+  startNoIdle();
+  notif('No IDLE iniciado', 'Mueve manualmente el cursor para desactivarlo');
 }
 
 async function sleepComputer(ms) {
