@@ -232,6 +232,44 @@ app.on('ready', () => {
                         }
                     },
                 },
+                {
+                    label: 'Limpiar caracteres especiales',
+                    click() {
+                        try {
+                            let temp = clipboardy.readSync();
+                            temp = temp.replace(/[áàäâ]/g, 'a');
+                            temp = temp.replace(/[éèëê]/g, 'e');
+                            temp = temp.replace(/[íìïî]/g, 'i');
+                            temp = temp.replace(/[óòöô]/g, 'o');
+                            temp = temp.replace(/[úùüû]/g, 'u');
+                            temp = temp.replace(/[ñ]/g, 'n');
+                            temp = temp.replace(/[ç]/g, 'c');
+                            temp = temp.replace(/[¿?¡!]/g, '');
+                            temp = temp.replace(/[.,:;()]/g, '');
+                            temp = temp.replace(/["']/g, '');
+                            temp = temp.replace(/[\[\]{}]/g, '');
+                            temp = temp.replace(/[\\]/g, ' ');
+                            temp = temp.replace(/[\/]/g, ' ');
+                            temp = temp.replace(/[|]/g, ' ');
+                            temp = temp.replace(/[+]/g, '');
+                            temp = temp.replace(/[*]/g, '');
+                            temp = temp.replace(/[-]/g, '');
+                            temp = temp.replace(/[=]/g, '');
+                            temp = temp.replace(/[&]/g, '');
+                            temp = temp.replace(/[<]/g, '');
+                            temp = temp.replace(/[>]/g, '');
+                            temp = temp.replace(/[~]/g, '');
+                            temp = temp.replace(/[`]/g, '');
+                            temp = temp.replace(/[$]/g, '');
+                            temp = temp.replace(/[%]/g, '');
+                            temp = temp.replace(/[#]/g, '');
+                            clipboardy.writeSync(temp);
+                            notif('Caracteres especiales limpiados');
+                        } catch (error) {
+                            notif('Error', error);
+                        }
+                    },
+                },
             ],
         },
         {
