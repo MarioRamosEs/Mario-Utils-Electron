@@ -273,6 +273,29 @@ app.on('ready', () => {
             ],
         },
         {
+            label: 'Automatizar',
+            visible: true,
+            submenu: [
+                {
+                    label: 'Pegar portapeles con enters',
+                    async click() {
+                        try {
+                            let data = clipboardy.readSync();
+                            const lines = data.split(/\r?\n/);
+                            await utils.delay(3000);
+                            lines.forEach((line) => {
+                                robot.typeString(line);
+                                robot.keyTap('enter');
+                            });
+                            notif('Portapeles pegado con enters');
+                        } catch (error) {
+                            notif('Error', error);
+                        }
+                    },
+                },
+            ],
+        },
+        {
             label: 'Trabajo',
             visible: true,
             submenu: [
@@ -640,10 +663,18 @@ app.on('ready', () => {
         },
         {
             label: 'Iniciar Paralels',
-            visible: !isWin,
+            visible: false,
             click() {
                 exec('sudo -b /Applications/Parallels Desktop.app/Contents/MacOS/prl_client_app');
                 notif('Paralells iniciando...');
+            },
+        },
+        {
+            label: 'Reiniciar a Windows',
+            visible: !isWin,
+            click() {
+                exec('sudo bless -mount "/Volumes/BOOTCAMP" -legacy -setBoot -nextonly;sudo shutdown -r now');
+                notif('Reiniciando a Windows...');
             },
         },
         {
