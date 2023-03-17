@@ -62,6 +62,7 @@ async function startNoIdle() {
         y: screenSize.height / 2
     };
     robot.moveMouse(screenMiddle.x, screenMiddle.y);
+    await utils.delay(1000);
 
     // If you move the cursor vertically, the script ends
     while (robot.getMousePos().y === screenMiddle.y) {
@@ -131,7 +132,7 @@ async function programmedTurnOnOff(deviceIp, timeInSeconds) {
 async function singleClickAsync() {
     await sleep(200);
     if (isDoubleClickEvent) return;
-    turnOnOff(ips.luces);
+    //turnOnOff(ips.luces);
 }
 
 async function doubleClickAsync() {
