@@ -149,6 +149,13 @@ async function sleepComputer(ms) {
     exec('nircmd.exe standby');
 }
 
+async function restartExplorerExe () {
+    if (!isWin) return;
+    exec('taskkill /f /im explorer.exe');
+    await sleep(1000);
+    exec('explorer.exe');
+}
+
 app.on('ready', () => {
     tray = new Tray(path.join(__dirname, './../assets/icon.png'));
 
@@ -392,6 +399,13 @@ app.on('ready', () => {
             },
         },
         {
+            label: 'Reiniciar explorer.exe',
+            visible: isWin,
+            click() {
+                restartExplorerExe();
+            }
+        },
+        {
             label: `Bloqueo suspensión - ${idBloqueoSuspension ? 'Activado' : 'Desactivado'}`,
             visible: isWin,
             submenu: [
@@ -449,6 +463,7 @@ app.on('ready', () => {
         },
         {
             label: 'WoL Torre',
+            visible: false,
             click() {
                 wol.wake(macs.torre, {address: ips.torre}, (error) => {
                     if (error) {
