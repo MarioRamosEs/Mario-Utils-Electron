@@ -11,5 +11,8 @@
         "sourceType": "module"
     },
     "rules": {
+        "indent": ["error", 4],
+        "quotes": "off",
+        "no-lonely-if": "off",
     }
 }

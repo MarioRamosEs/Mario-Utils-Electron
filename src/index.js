@@ -388,22 +388,35 @@ app.on('ready', () => {
             },
         },
         {
-            label: 'Limpiar TEMP',
+            label: 'Mantenimiento',
             visible: isWin,
-            click() {
-                try {
-                    exec('del /q/f/s %TEMP%\\*');
-                } catch (error) {
-                    notif('Error', error);
-                }
-            },
-        },
-        {
-            label: 'Reiniciar explorer.exe',
-            visible: isWin,
-            click() {
-                restartExplorerExe();
-            }
+            submenu: [
+                {
+                    label: 'Limpiar TEMP',
+                    visible: isWin,
+                    click() {
+                        try {
+                            exec('del /q/f/s %TEMP%\\*');
+                        } catch (error) {
+                            notif('Error', error);
+                        }
+                    },
+                },
+                {
+                    label: 'Reiniciar explorer.exe',
+                    visible: isWin,
+                    click() {
+                        restartExplorerExe();
+                    }
+                },
+                {
+                    label: 'Apagar WSL',
+                    visible: isWin,
+                    click() {
+                        exec('wsl --shutdown');
+                    },
+                },
+            ],
         },
         {
             label: `Bloqueo suspensión - ${idBloqueoSuspension ? 'Activado' : 'Desactivado'}`,
