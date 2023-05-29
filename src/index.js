@@ -73,20 +73,33 @@ async function startNoIdle() {
         for (let x = screenMiddle.x + 50; x > screenMiddle.x - 50; x--) {
             robot.moveMouse(x, screenMiddle.y);
         }
-        await utils.delay(1000);
+        await utils.delay(500);
     }
     console.log('End');
 }
 
-function changeOsTheme() {
+async function changeOsTheme() {
     try {
         if (isWin) {
-            if (nativeTheme.shouldUseDarkColors) {
-                exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 1"`);
-                exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 1"`);
+            let winVersion = require('os').release();
+            let winVersionRelease = parseInt(winVersion.split('.')[2]);
+            
+            if (winVersionRelease > 22000) { // Windows 11
+                if (nativeTheme.shouldUseDarkColors) {
+                    exec(`C:\\Windows\\Resources\\Themes\\aero.theme`);
+                } else {
+                    exec(`C:\\Windows\\Resources\\Themes\\dark.theme`);
+                }
+                await utils.delay(1000);
+                exec(`taskkill /F /IM systemsettings.exe`);
             } else {
-                exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 0"`);
-                exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 0"`);
+                if (nativeTheme.shouldUseDarkColors) {
+                    exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 1"`);
+                    exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 1"`);
+                } else {
+                    exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 0"`);
+                    exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 0"`);
+                }
             }
         } else {
             if (nativeTheme.shouldUseDarkColors) {
@@ -95,6 +108,9 @@ function changeOsTheme() {
                 exec(`osascript -l JavaScript -e "Application('System Events').appearancePreferences.darkMode = true"`);
             }
         }
+
+        // Update tray icon
+        tray.setImage(path.join(__dirname, nativeTheme.shouldUseDarkColors ? './../assets/icon_light.png' : './../assets/icon_dark.png'));
     } catch (e) {
         console.error(e);
     }
@@ -157,7 +173,7 @@ async function restartExplorerExe () {
 }
 
 app.on('ready', () => {
-    tray = new Tray(path.join(__dirname, './../assets/icon.png'));
+    tray = new Tray(path.join(__dirname, nativeTheme.shouldUseDarkColors ? './../assets/icon_light.png' : './../assets/icon_dark.png'));
 
     const menu = Menu.buildFromTemplate([
         {
