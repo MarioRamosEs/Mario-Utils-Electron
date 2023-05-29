@@ -6,7 +6,6 @@ const {
     app,
     Menu,
     Tray,
-    Notification,
     powerSaveBlocker,
     BrowserWindow,
     nativeTheme
@@ -19,9 +18,7 @@ const clipboardy = require('clipboardy');
 // const startNoIdle = require('./NoIdle');
 const robot = require('robotjs');
 const utils = require('./utils');
-const {version} = require('../package');
 
-const isWin = process.platform === 'win32';
 const ips = {
     aire2: '192.168.0.19',
     luces: '192.168.0.18',
@@ -33,17 +30,21 @@ const macs = {
     luces: 'b0:95:75:86:8a:53',
 };
 
+// Constants
+const { isWin } = require('./consts');
+
+// Functions
+const { notif } = require('./functions');
+const { changeOsTheme } = require("./menu-items/changeOsTheme");
+
+// Menu items
+const menuVersion = require("./menu-items/version");
+const clipboard = require("./menu-items/clipboard");
+
 const client = new Client();
 let tray = null;
 let idBloqueoSuspension = 0;
 let isDoubleClickEvent = false;
-
-function notif(title, body = '') {
-    new Notification({
-        title,
-        body,
-    }).show();
-}
 
 function iniciarSQLServer() {
     exec('net start MSSQL$SQLEXPRESS');
@@ -78,44 +79,6 @@ async function startNoIdle() {
     console.log('End');
 }
 
-async function changeOsTheme() {
-    try {
-        if (isWin) {
-            let winVersion = require('os').release();
-            let winVersionRelease = parseInt(winVersion.split('.')[2]);
-            
-            if (winVersionRelease > 22000) { // Windows 11
-                if (nativeTheme.shouldUseDarkColors) {
-                    exec(`C:\\Windows\\Resources\\Themes\\aero.theme`);
-                } else {
-                    exec(`C:\\Windows\\Resources\\Themes\\dark.theme`);
-                }
-                await utils.delay(1000);
-                exec(`taskkill /F /IM systemsettings.exe`);
-            } else {
-                if (nativeTheme.shouldUseDarkColors) {
-                    exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 1"`);
-                    exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 1"`);
-                } else {
-                    exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 0"`);
-                    exec(`powershell -Command "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 0"`);
-                }
-            }
-        } else {
-            if (nativeTheme.shouldUseDarkColors) {
-                exec(`osascript -l JavaScript -e "Application('System Events').appearancePreferences.darkMode = false"`);
-            } else {
-                exec(`osascript -l JavaScript -e "Application('System Events').appearancePreferences.darkMode = true"`);
-            }
-        }
-
-        // Update tray icon
-        tray.setImage(path.join(__dirname, nativeTheme.shouldUseDarkColors ? './../assets/icon_light.png' : './../assets/icon_dark.png'));
-    } catch (e) {
-        console.error(e);
-    }
-}
-
 function shutdown(timeInSeconds, restart = 'false') {
     if (isWin) exec(`shutdown ${restart ? '/r' : '/s'} /t ${timeInSeconds}`);
     else notif('TODO');
@@ -145,7 +108,7 @@ async function programmedTurnOnOff(deviceIp, timeInSeconds) {
     if (await getPowerState(deviceIp) === powerState) await turnOnOff(deviceIp, true);
 }
 
-async function singleClickAsync() {
+async function singleClickAsync() { // Disabled
     await sleep(200);
     if (isDoubleClickEvent) return;
     //turnOnOff(ips.luces);
@@ -176,126 +139,8 @@ app.on('ready', () => {
     tray = new Tray(path.join(__dirname, nativeTheme.shouldUseDarkColors ? './../assets/icon_light.png' : './../assets/icon_dark.png'));
 
     const menu = Menu.buildFromTemplate([
-        {
-            label: version,
-            click() {
-                if (isWin) {
-                    notif('Test desde Windows');
-                } else {
-                    notif('Test desde Mac');
-                }
-            },
-        },
-        {
-            label: 'Portapapeles',
-            visible: true,
-            submenu: [
-                {
-                    label: 'Comillas dobles por comillas simples',
-                    click() {
-                        try {
-                            let temp = clipboardy.readSync();
-                            temp = temp.replace('"', "'").trim();
-                            clipboardy.writeSync(temp);
-                            notif('Comillas dobles cambiadas a simples');
-                        } catch (error) {
-                            notif('Error', error);
-                        }
-                    },
-                },
-                {
-                    label: 'Comillas simples por comillas dobles',
-                    click() {
-                        try {
-                            let temp = clipboardy.readSync();
-                            while (temp.length > 0 && temp.indexOf('"') !== -1) {
-                                temp = temp.replace("'", '"').trim();
-                            }
-                            clipboardy.writeSync(temp);
-                            notif('Comillas simples cambiadas a dobles');
-                        } catch (error) {
-                            notif('Error', error);
-                        }
-                    },
-                },
-                {
-                    label: 'Quitar saltos de línea',
-                    click() {
-                        try {
-                            let temp = clipboardy.readSync();
-                            temp = temp.replace(/(\r\n|\n|\r)/gm, '').trim();
-                            temp = temp.replace(/\s\s+/g, ' ');
-                            clipboardy.writeSync(temp);
-                            notif('Saltos de linea quitados');
-                        } catch (error) {
-                            notif('Error', error);
-                        }
-                    },
-                },
-                {
-                    label: 'Poner en mayúsculas',
-                    click() {
-                        try {
-                            const temp = clipboardy.readSync();
-                            clipboardy.writeSync(temp.toUpperCase());
-                            notif('Portapeles en mayúsculas');
-                        } catch (error) {
-                            notif('Error', error);
-                        }
-                    },
-                },
-                {
-                    label: 'Poner en minúsculas',
-                    click() {
-                        try {
-                            const temp = clipboardy.readSync();
-                            clipboardy.writeSync(temp.toLowerCase());
-                            notif('Portapeles en mayúsculas');
-                        } catch (error) {
-                            notif('Error', error);
-                        }
-                    },
-                },
-                {
-                    label: 'Limpiar caracteres especiales',
-                    click() {
-                        try {
-                            let temp = clipboardy.readSync();
-                            temp = temp.replace(/[áàäâ]/g, 'a');
-                            temp = temp.replace(/[éèëê]/g, 'e');
-                            temp = temp.replace(/[íìïî]/g, 'i');
-                            temp = temp.replace(/[óòöô]/g, 'o');
-                            temp = temp.replace(/[úùüû]/g, 'u');
-                            temp = temp.replace(/[ñ]/g, 'n');
-                            temp = temp.replace(/[ç]/g, 'c');
-                            temp = temp.replace(/[¿?¡!]/g, '');
-                            temp = temp.replace(/[.,:;()]/g, '');
-                            temp = temp.replace(/["']/g, '');
-                            temp = temp.replace(/[\[\]{}]/g, '');
-                            temp = temp.replace(/[\\]/g, ' ');
-                            temp = temp.replace(/[\/]/g, ' ');
-                            temp = temp.replace(/[|]/g, ' ');
-                            temp = temp.replace(/[+]/g, '');
-                            temp = temp.replace(/[*]/g, '');
-                            temp = temp.replace(/[-]/g, '');
-                            temp = temp.replace(/[=]/g, '');
-                            temp = temp.replace(/[&]/g, '');
-                            temp = temp.replace(/[<]/g, '');
-                            temp = temp.replace(/[>]/g, '');
-                            temp = temp.replace(/[~]/g, '');
-                            temp = temp.replace(/[`]/g, '');
-                            temp = temp.replace(/[$]/g, '');
-                            temp = temp.replace(/[%]/g, '');
-                            temp = temp.replace(/[#]/g, '');
-                            clipboardy.writeSync(temp);
-                            notif('Caracteres especiales limpiados');
-                        } catch (error) {
-                            notif('Error', error);
-                        }
-                    },
-                },
-            ],
-        },
+        menuVersion,
+        clipboard,
         {
             label: 'Automatizar',
             visible: true,
@@ -329,19 +174,6 @@ app.on('ready', () => {
                         try {
                             const win = new BrowserWindow({});
                             win.loadURL('https://jobtracker.marioramos.es/');
-                        } catch (error) {
-                            notif('Error', error);
-                        }
-                    },
-                },
-                {
-                    label: 'Iniciar',
-                    visible: isWin,
-                    click() {
-                        try {
-                            exec('code C:\\Users\\mario\\Documents\\GitHub\\hipo-front');
-                            exec('github C:\\Users\\mario\\Documents\\GitHub\\hipo-front');
-                            exec('C:\\Users\\mario\\Documents\\GitHub\\hipo-back-2\\NHCore.sln');
                         } catch (error) {
                             notif('Error', error);
                         }
@@ -389,7 +221,7 @@ app.on('ready', () => {
         {
             label: 'Modo Oscuro/Claro',
             click() {
-                changeOsTheme();
+                changeOsTheme(tray);
             },
         },
         {
@@ -684,9 +516,7 @@ app.on('ready', () => {
                 if (isWin) {
                     exec('C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe');
                     exec('"E:\\Games\\Riot Games\\Riot Client\\RiotClientServices.exe" --launch-product=league_of_legends --launch-patchline=live');
-                    // exec("C:\\Users\\mario\\AppData\\Local\\Programs\\Blitz\\Blitz.exe");
                 } else {
-                    // exec("open -a Blitz");
                     exec('open -a LeagueClient');
                 }
             },
