@@ -36,6 +36,7 @@ const { isWin } = require('./consts');
 // Functions
 const { notif } = require('./functions');
 const { changeOsTheme } = require("./menu-items/changeOsTheme");
+const { changeTaskbarState } = require("./menu-items/changeTaskbarState");
 
 // Menu items
 const menuVersion = require("./menu-items/version");
@@ -222,6 +223,12 @@ app.on('ready', () => {
             label: 'Modo Oscuro/Claro',
             click() {
                 changeOsTheme(tray);
+            },
+        },
+        {
+            label: 'Ocultar/Mostrar barra de tareas',
+            click() {
+                changeTaskbarState();
             },
         },
         {
