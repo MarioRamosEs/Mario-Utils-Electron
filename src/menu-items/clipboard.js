@@ -48,6 +48,22 @@ module.exports = {
             },
         },
         {
+            label: 'Convertir a postman',
+            click() {
+                try {
+                    let temp = clipboardy.readSync();
+                    temp = temp.replace(/(\r\n|\n|\r)/gm, '\\n').trim();
+                    // Cambia las " por \" y las ' por \'
+                    temp = temp.replace(/"/g, '\\"');
+                    temp = temp.replace(/'/g, "\\'");
+                    clipboardy.writeSync(temp);
+                    notif('Saltos de linea cambiados a \\n');
+                } catch (error) {
+                    notif('Error', error);
+                }
+            },
+        },
+        {
             label: 'Poner en mayúsculas',
             click() {
                 try {
