@@ -57,23 +57,17 @@ async function startNoIdle() {
     robot.setMouseDelay(2);
     await utils.delay(3000);
 
-    // let mouse = robot.getMousePos();
-    const screenSize = robot.getScreenSize();
-    const screenMiddle = {
-        x: screenSize.width / 2,
-        y: screenSize.height / 2
-    };
-    robot.moveMouse(screenMiddle.x, screenMiddle.y);
-    await utils.delay(1000);
+    const startingPoint = { x: robot.getMousePos().x, y: robot.getMousePos().y };
 
     // If you move the cursor vertically, the script ends
-    while (robot.getMousePos().y === screenMiddle.y) {
-        for (let x = screenMiddle.x - 50; x < screenMiddle.x + 50; x++) {
-            robot.moveMouse(x, screenMiddle.y);
+    while (robot.getMousePos().y === startingPoint.y) {
+        for (let x = startingPoint.x - 50; x < startingPoint.x + 50; x++) {
+            robot.moveMouse(x, startingPoint.y);
         }
-        await utils.delay(1000);
-        for (let x = screenMiddle.x + 50; x > screenMiddle.x - 50; x--) {
-            robot.moveMouse(x, screenMiddle.y);
+        await utils.delay(500);
+
+        for (let x = startingPoint.x + 50; x > startingPoint.x - 50; x--) {
+            robot.moveMouse(x, startingPoint.y);
         }
         await utils.delay(500);
     }

@@ -19,6 +19,19 @@ module.exports = {
             },
         },
         {
+            label: 'Comillas dobles por doble comillas dobles',
+            click() {
+                try {
+                    let temp = clipboardy.readSync();
+                    temp = temp.replace(/"/g, '""').trim();
+                    clipboardy.writeSync(temp);
+                    notif('Comillas dobles cambiadas a dobles comillas dobles');
+                } catch (error) {
+                    notif('Error', error);
+                }
+            },
+        },
+        {
             label: 'Comillas simples por comillas dobles',
             click() {
                 try {
