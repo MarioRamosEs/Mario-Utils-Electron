@@ -1,40 +1,28 @@
 /* eslint-disable no-console */
 /* eslint-disable linebreak-style */
 
-const path = require('path');
+const path = require("path");
 const {
     app,
     Menu,
     Tray,
     powerSaveBlocker,
     BrowserWindow,
-    nativeTheme
-} = require('electron');
-const {exec} = require('child_process');
-const {Client} = require('tplink-smarthome-api');
-const wol = require('wake_on_lan');
-const prompt = require('electron-prompt');
-const clipboardy = require('clipboardy');
+    nativeTheme,
+} = require("electron");
+const { exec } = require("child_process");
+const wol = require("wake_on_lan");
+const prompt = require("electron-prompt");
+const clipboardy = require("clipboardy");
 // const startNoIdle = require('./NoIdle');
-const robot = require('robotjs');
-const utils = require('./utils');
-
-const ips = {
-    aire2: '192.168.0.19',
-    luces: '192.168.0.18',
-    torre: '192.168.0.255',
-};
-const macs = {
-    torre: 'E0:D5:5E:89:3C:22',
-    aire2: 'b0:95:75:86:88:45',
-    luces: 'b0:95:75:86:8a:53',
-};
+const robot = require("robotjs");
+const utils = require("./utils");
 
 // Constants
-const { isWin } = require('./consts');
+const { isWin } = require("./consts");
 
 // Functions
-const { notif } = require('./functions');
+const { notif } = require("./functions");
 const { changeOsTheme } = require("./menu-items/changeOsTheme");
 const { changeTaskbarState } = require("./menu-items/changeTaskbarState");
 
@@ -42,22 +30,24 @@ const { changeTaskbarState } = require("./menu-items/changeTaskbarState");
 const menuVersion = require("./menu-items/version");
 const clipboard = require("./menu-items/clipboard");
 
-const client = new Client();
 let tray = null;
 let idBloqueoSuspension = 0;
 let isDoubleClickEvent = false;
 
 function iniciarSQLServer() {
-    exec('net start MSSQL$SQLEXPRESS');
-    notif('SQL Server reiniciado');
+    exec("net start MSSQL$SQLEXPRESS");
+    notif("SQL Server reiniciado");
 }
 
 async function startNoIdle() {
-    console.log('Start');
+    console.log("Start");
     robot.setMouseDelay(2);
     await utils.delay(3000);
 
-    const startingPoint = { x: robot.getMousePos().x, y: robot.getMousePos().y };
+    const startingPoint = {
+        x: robot.getMousePos().x,
+        y: robot.getMousePos().y,
+    };
 
     // If you move the cursor vertically, the script ends
     while (robot.getMousePos().y === startingPoint.y) {
@@ -71,39 +61,20 @@ async function startNoIdle() {
         }
         await utils.delay(500);
     }
-    console.log('End');
+    console.log("End");
 }
 
-function shutdown(timeInSeconds, restart = 'false') {
-    if (isWin) exec(`shutdown ${restart ? '/r' : '/s'} /t ${timeInSeconds}`);
-    else notif('TODO');
+function shutdown(timeInSeconds, restart = "false") {
+    if (isWin) exec(`shutdown ${restart ? "/r" : "/s"} /t ${timeInSeconds}`);
+    else notif("TODO");
 }
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function getPowerState(deviceIp) {
-    const device = await client.getDevice({host: deviceIp});
-    const powerState = await device.getPowerState();
-    return powerState;
-}
-
-async function turnOnOff(deviceIp, doNotif = false) {
-    const device = await client.getDevice({host: deviceIp});
-    const powerState = await device.getPowerState();
-    await device.setPowerState(!powerState);
-    if (doNotif) notif(`Device turned ${powerState ? 'off' : 'on'}`);
-    return !powerState;
-}
-
-async function programmedTurnOnOff(deviceIp, timeInSeconds) {
-    const powerState = await turnOnOff(deviceIp, true);
-    await sleep(timeInSeconds * 1000);
-    if (await getPowerState(deviceIp) === powerState) await turnOnOff(deviceIp, true);
-}
-
-async function singleClickAsync() { // Disabled
+async function singleClickAsync() {
+    // Disabled
     await sleep(200);
     if (isDoubleClickEvent) return;
     //turnOnOff(ips.luces);
@@ -114,34 +85,41 @@ async function doubleClickAsync() {
     await sleep(215);
     isDoubleClickEvent = false;
     startNoIdle();
-    notif('No IDLE iniciado', 'Mueve manualmente el cursor para desactivarlo');
+    notif("No IDLE iniciado", "Mueve manualmente el cursor para desactivarlo");
 }
 
 async function sleepComputer(ms) {
     if (!isWin) return;
     await sleep(ms);
-    exec('nircmd.exe standby');
+    exec("nircmd.exe standby");
 }
 
-async function restartExplorerExe () {
+async function restartExplorerExe() {
     if (!isWin) return;
-    exec('taskkill /f /im explorer.exe');
+    exec("taskkill /f /im explorer.exe");
     await sleep(1000);
-    exec('explorer.exe');
+    exec("explorer.exe");
 }
 
-app.on('ready', () => {
-    tray = new Tray(path.join(__dirname, nativeTheme.shouldUseDarkColors ? './../assets/icon_light.png' : './../assets/icon_dark.png'));
+app.on("ready", () => {
+    tray = new Tray(
+        path.join(
+            __dirname,
+            nativeTheme.shouldUseDarkColors
+                ? "./../assets/icon_light.png"
+                : "./../assets/icon_dark.png"
+        )
+    );
 
     const menu = Menu.buildFromTemplate([
         menuVersion,
         clipboard,
         {
-            label: 'Automatizar',
+            label: "Automatizar",
             visible: true,
             submenu: [
                 {
-                    label: 'Pegar portapeles con enters',
+                    label: "Pegar portapeles con enters",
                     async click() {
                         try {
                             let data = clipboardy.readSync();
@@ -149,170 +127,180 @@ app.on('ready', () => {
                             await utils.delay(3000);
                             lines.forEach((line) => {
                                 robot.typeString(line);
-                                robot.keyTap('enter');
+                                robot.keyTap("enter");
                             });
-                            notif('Portapeles pegado con enters');
+                            notif("Portapeles pegado con enters");
                         } catch (error) {
-                            notif('Error', error);
+                            notif("Error", error);
                         }
                     },
                 },
             ],
         },
         {
-            label: 'Trabajo',
+            label: "Trabajo",
             visible: true,
             submenu: [
                 {
-                    label: 'Tracker',
+                    label: "Tracker",
                     click() {
                         try {
                             const win = new BrowserWindow({});
-                            win.loadURL('https://jobtracker.marioramos.es/');
+                            win.loadURL("https://jobtracker.marioramos.es/");
                         } catch (error) {
-                            notif('Error', error);
+                            notif("Error", error);
                         }
                     },
                 },
                 {
-                    label: 'Plegar',
+                    label: "Plegar",
                     visible: isWin,
                     click() {
                         try {
                             shutdown(1800);
-                            exec('node C:\\Users\\mario\\Documents\\GitHub\\NodeUtils\\src\\NoIdle.js');
-                            notif('Modo plegar iniciado');
+                            exec(
+                                "node C:\\Users\\mario\\Documents\\GitHub\\NodeUtils\\src\\NoIdle.js"
+                            );
+                            notif("Modo plegar iniciado");
                         } catch (error) {
-                            notif('Error', error);
+                            notif("Error", error);
                         }
                     },
                 },
                 {
-                    label: 'Reiniciar SQL Server',
+                    label: "Reiniciar SQL Server",
                     visible: isWin,
                     click() {
                         try {
-                            notif('Reiniciando SQL server...');
-                            exec('net stop MSSQL$SQLEXPRESS', iniciarSQLServer());
+                            notif("Reiniciando SQL server...");
+                            exec(
+                                "net stop MSSQL$SQLEXPRESS",
+                                iniciarSQLServer()
+                            );
                         } catch (error) {
-                            notif('Error', error);
+                            notif("Error", error);
                         }
                     },
                 },
                 {
-                    label: 'Cerrar Docker',
+                    label: "Cerrar Docker",
                     visible: !isWin,
                     click() {
                         try {
-                            exec('osascript -e \'quit app "Docker"\'');
-                            notif('Docker cerrado');
+                            exec("osascript -e 'quit app \"Docker\"'");
+                            notif("Docker cerrado");
                         } catch (error) {
-                            notif('Error', error);
+                            notif("Error", error);
                         }
                     },
                 },
             ],
         },
         {
-            label: 'Modo Oscuro/Claro',
+            label: "Modo Oscuro/Claro",
             click() {
                 changeOsTheme(tray);
             },
         },
         {
-            label: 'Ocultar/Mostrar barra de tareas',
+            label: "Ocultar/Mostrar barra de tareas",
+            visible: isWin,
             click() {
                 changeTaskbarState();
             },
         },
         {
-            label: 'Randomizer',
+            label: "Randomizer",
             click() {
                 try {
                     const win = new BrowserWindow({});
-                    win.loadURL('https://marioramos.es/utils/randomizer');
+                    win.loadURL("https://marioramos.es/utils/randomizer");
                 } catch (error) {
-                    notif('Error', error);
+                    notif("Error", error);
                 }
             },
         },
         {
-            label: 'Mantenimiento',
+            label: "Mantenimiento",
             visible: isWin,
             submenu: [
                 {
-                    label: 'Limpiar TEMP',
+                    label: "Limpiar TEMP",
                     visible: isWin,
                     click() {
                         try {
-                            exec('del /q/f/s %TEMP%\\*');
+                            exec("del /q/f/s %TEMP%\\*");
                         } catch (error) {
-                            notif('Error', error);
+                            notif("Error", error);
                         }
                     },
                 },
                 {
-                    label: 'Reiniciar explorer.exe',
+                    label: "Reiniciar explorer.exe",
                     visible: isWin,
                     click() {
                         restartExplorerExe();
-                    }
+                    },
                 },
                 {
-                    label: 'Apagar WSL',
+                    label: "Apagar WSL",
                     visible: isWin,
                     click() {
-                        exec('wsl --shutdown');
+                        exec("wsl --shutdown");
                     },
                 },
             ],
         },
         {
-            label: `Bloqueo suspensión - ${idBloqueoSuspension ? 'Activado' : 'Desactivado'}`,
+            label: `Bloqueo suspensión - ${
+                idBloqueoSuspension ? "Activado" : "Desactivado"
+            }`,
             visible: isWin,
             submenu: [
                 {
-                    label: 'Ver programas que bloquean',
+                    label: "Ver programas que bloquean",
                     click() {
-                        exec('start cmd.exe /K powercfg -requests');
+                        exec("start cmd.exe /K powercfg -requests");
                     },
                 },
                 {
-                    label: 'Bloquear',
+                    label: "Bloquear",
                     click() {
                         if (!idBloqueoSuspension) {
-                            idBloqueoSuspension = powerSaveBlocker.start('prevent-app-suspension');
-                            notif('Bloqueo activado');
+                            idBloqueoSuspension = powerSaveBlocker.start(
+                                "prevent-app-suspension"
+                            );
+                            notif("Bloqueo activado");
                         } else {
-                            notif('Bloqueo ya activo');
+                            notif("Bloqueo ya activo");
                         }
                     },
                 },
                 {
-                    label: 'Desbloquear',
+                    label: "Desbloquear",
                     click() {
                         powerSaveBlocker.stop(idBloqueoSuspension);
                         if (!powerSaveBlocker.isStarted(idBloqueoSuspension)) {
                             idBloqueoSuspension = 0;
-                            notif('Bloqueo desactivado');
+                            notif("Bloqueo desactivado");
                         } else {
-                            notif('No se pudo desbloquear');
+                            notif("No se pudo desbloquear");
                         }
                     },
                 },
             ],
         },
         {
-            label: 'WoL Manual', // Hided
+            label: "WoL Manual", // Hided
             visible: false,
             click() {
                 prompt({
-                    title: 'Prompt IP',
-                    label: 'IP:',
-                    value: '192.168.1.135',
+                    title: "Prompt IP",
+                    label: "IP:",
+                    value: "192.168.1.135",
                 })
                     .then((r) => {
-                        wol.wake(macs.torre, {address: r}, (error) => {
+                        wol.wake(macs.torre, { address: r }, (error) => {
                             if (error) {
                                 notif(`Error en WoL: ${error}`);
                             } else {
@@ -324,96 +312,96 @@ app.on('ready', () => {
             },
         },
         {
-            label: 'WoL Torre',
+            label: "WoL Torre",
             visible: false,
             click() {
-                wol.wake(macs.torre, {address: ips.torre}, (error) => {
+                wol.wake(macs.torre, { address: ips.torre }, (error) => {
                     if (error) {
                         notif(`Error en WoL: ${error}`);
                     } else {
-                        notif('WoL correcto');
+                        notif("WoL correcto");
                     }
                 });
             },
         },
         {
-            label: 'Aire/Estufa',
+            label: "Aire/Estufa",
             visible: false,
             click() {
                 turnOnOff(ips.aire2, true);
             },
         },
         {
-            label: 'Aire/Estufa temporizado',
+            label: "Aire/Estufa temporizado",
             visible: false,
             submenu: [
                 {
-                    label: '5 minutos',
+                    label: "5 minutos",
                     click: () => programmedTurnOnOff(ips.aire2, 60 * 5),
                 },
                 {
-                    label: '15 minutos',
+                    label: "15 minutos",
                     click: () => programmedTurnOnOff(ips.aire2, 900),
                 },
                 {
-                    label: '30 minutos',
+                    label: "30 minutos",
                     click: () => programmedTurnOnOff(ips.aire2, 1800),
                 },
                 {
-                    label: '1 hora',
+                    label: "1 hora",
                     click: () => programmedTurnOnOff(ips.aire2, 3600),
                 },
             ],
         },
         {
-            label: 'Luces',
+            label: "Luces",
             visible: false,
             click() {
                 turnOnOff(ips.luces);
             },
         },
         {
-            label: 'Apagar en...',
+            label: "Apagar en...",
             visible: isWin,
             submenu: [
                 {
-                    label: 'Cancelar apagado',
+                    label: "Cancelar apagado",
                     click() {
-                        exec('shutdown /a');
+                        exec("shutdown /a");
                     },
                 },
                 {
-                    label: '5 minutos',
+                    label: "5 minutos",
                     click() {
                         shutdown(60 * 5);
                     },
                 },
                 {
-                    label: '15 minutos',
+                    label: "15 minutos",
                     click() {
                         shutdown(900);
                     },
                 },
                 {
-                    label: '30 minutos',
+                    label: "30 minutos",
                     click() {
                         shutdown(1800);
                     },
                 },
                 {
-                    label: '1 hora',
+                    label: "1 hora",
                     click() {
                         shutdown(3600);
                     },
                 },
                 {
-                    label: '2 horas',
+                    label: "2 horas",
                     click() {
                         shutdown(3600 * 2);
                     },
                 },
                 {
-                    label: '4 horas',
+                    label: "4 horas",
                     click() {
                         shutdown(3600 * 4);
                     },
@@ -421,47 +409,47 @@ app.on('ready', () => {
             ],
         },
         {
-            label: 'Reiniciar en...',
+            label: "Reiniciar en...",
             visible: isWin,
             submenu: [
                 {
-                    label: 'Cancelar reinicio',
+                    label: "Cancelar reinicio",
                     click() {
-                        exec('shutdown /a');
+                        exec("shutdown /a");
                     },
                 },
                 {
-                    label: '5 minutos',
+                    label: "5 minutos",
                     click() {
                         shutdown(60 * 5, true);
                     },
                 },
                 {
-                    label: '15 minutos',
+                    label: "15 minutos",
                     click() {
                         shutdown(900, true);
                     },
                 },
                 {
-                    label: '30 minutos',
+                    label: "30 minutos",
                     click() {
                         shutdown(1800, true);
                     },
                 },
                 {
-                    label: '1 hora',
+                    label: "1 hora",
                     click() {
                         shutdown(3600, true);
                     },
                 },
                 {
-                    label: '2 horas',
+                    label: "2 horas",
                     click() {
                         shutdown(3600 * 2, true);
                     },
                 },
                 {
-                    label: '4 horas',
+                    label: "4 horas",
                     click() {
                         shutdown(3600 * 4, true);
                     },
@@ -469,41 +457,41 @@ app.on('ready', () => {
             ],
         },
         {
-            label: 'Suspender en...',
+            label: "Suspender en...",
             visible: isWin,
             submenu: [
                 {
-                    label: '5 minutos',
+                    label: "5 minutos",
                     click() {
                         sleepComputer(60 * 5);
                     },
                 },
                 {
-                    label: '15 minutos',
+                    label: "15 minutos",
                     click() {
                         sleepComputer(900, true);
                     },
                 },
                 {
-                    label: '30 minutos',
+                    label: "30 minutos",
                     click() {
                         sleepComputer(1800, true);
                     },
                 },
                 {
-                    label: '1 hora',
+                    label: "1 hora",
                     click() {
                         sleepComputer(3600, true);
                     },
                 },
                 {
-                    label: '2 horas',
+                    label: "2 horas",
                     click() {
                         sleepComputer(3600 * 2, true);
                     },
                 },
                 {
-                    label: '4 horas',
+                    label: "4 horas",
                     click() {
                         sleepComputer(3600 * 4, true);
                     },
@@ -511,50 +499,63 @@ app.on('ready', () => {
             ],
         },
         {
-            label: 'Lolete',
+            label: "Lolete",
             visible: false,
             click() {
                 if (isWin) {
-                    exec('C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe');
-                    exec('"E:\\Games\\Riot Games\\Riot Client\\RiotClientServices.exe" --launch-product=league_of_legends --launch-patchline=live');
+                    exec(
+                        "C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe"
+                    );
+                    exec(
+                        '"E:\\Games\\Riot Games\\Riot Client\\RiotClientServices.exe" --launch-product=league_of_legends --launch-patchline=live'
+                    );
                 } else {
-                    exec('open -a LeagueClient');
+                    exec("open -a LeagueClient");
                 }
             },
         },
         {
-            label: 'No IDLE',
+            label: "No IDLE",
             visible: true,
             click() {
                 startNoIdle();
-                notif('No IDLE iniciado', 'Mueve manualmente el cursor para desactivarlo');
+                notif(
+                    "No IDLE iniciado",
+                    "Mueve manualmente el cursor para desactivarlo"
+                );
             },
         },
         {
-            label: 'Cerrar todas las apps',
+            label: "Cerrar todas las apps",
             visible: !isWin,
             click() {
-                exec('open /Users/marioramos/Repos/Mario-Utils-Electron/QuitAllApps.app');
+                exec(
+                    "open /Users/marioramos/Repos/Mario-Utils-Electron/QuitAllApps.app"
+                );
             },
         },
         {
-            label: 'Iniciar Paralels',
+            label: "Iniciar Paralels",
             visible: false,
             click() {
-                exec('sudo -b /Applications/Parallels Desktop.app/Contents/MacOS/prl_client_app');
-                notif('Paralells iniciando...');
+                exec(
+                    "sudo -b /Applications/Parallels Desktop.app/Contents/MacOS/prl_client_app"
+                );
+                notif("Paralells iniciando...");
             },
         },
         {
-            label: 'Reiniciar a Windows',
+            label: "Reiniciar a Windows",
             visible: !isWin,
             click() {
-                exec('sudo bless -mount "/Volumes/BOOTCAMP" -legacy -setBoot -nextonly;sudo shutdown -r now');
-                notif('Reiniciando a Windows...');
+                exec(
+                    'sudo bless -mount "/Volumes/BOOTCAMP" -legacy -setBoot -nextonly;sudo shutdown -r now'
+                );
+                notif("Reiniciando a Windows...");
             },
         },
         {
-            label: 'Salir',
+            label: "Salir",
             click() {
                 app.quit();
             },
@@ -564,14 +565,15 @@ app.on('ready', () => {
     tray.setToolTip("Mario's Utils");
     tray.setContextMenu(menu);
     tray.setIgnoreDoubleClickEvents(true);
-    tray.on('click', () => {
+    tray.on("click", () => {
         singleClickAsync();
     });
-    tray.on('double-click', () => {
+    tray.on("double-click", () => {
         doubleClickAsync();
     });
 });
 
 if (!isWin) app.dock.hide();
 app.setAppUserModelId(process.execPath);
-app.on('window-all-closed', (e) => e.preventDefault());
+app.on("window-all-closed", (e) => e.preventDefault());
+

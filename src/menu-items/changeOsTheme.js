@@ -1,15 +1,16 @@
-const { isWin } = require('../consts');
-const { nativeTheme } = require('electron');
-const { exec } = require('child_process');
-const { delay } = require('../functions');
-const path = require('path');
+const { isWin } = require("../consts");
+const { nativeTheme } = require("electron");
+const { exec } = require("child_process");
+const { delay } = require("../functions");
+const path = require("path");
 
 async function changeOsTheme(tray) {
     try {
         if (isWin) {
-            const winVersionRelease = parseInt(require('os').release().split('.')[2]);
-            
-            if (winVersionRelease > 22000) { // Windows 11
+            const winVersionRelease = parseInt(require("os").release().split(".")[2]);
+
+            // Windows 11
+            if (winVersionRelease > 22000) {
                 if (nativeTheme.shouldUseDarkColors) {
                     exec(`C:\\Windows\\Resources\\Themes\\aero.theme`);
                 } else {
@@ -35,12 +36,12 @@ async function changeOsTheme(tray) {
         }
 
         // Update tray icon
-        tray.setImage(path.join(__dirname, nativeTheme.shouldUseDarkColors ? '../../assets/icon_light.png' : '../../assets/icon_dark.png'));
+        tray.setImage(path.join(__dirname, nativeTheme.shouldUseDarkColors ? "../../assets/icon_light.png" : "../../assets/icon_dark.png"));
     } catch (e) {
         console.error(e);
     }
 }
 
 module.exports = {
-    changeOsTheme
+    changeOsTheme,
 };
