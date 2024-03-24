@@ -2,14 +2,7 @@
 /* eslint-disable linebreak-style */
 
 const path = require("path");
-const {
-    app,
-    Menu,
-    Tray,
-    powerSaveBlocker,
-    BrowserWindow,
-    nativeTheme,
-} = require("electron");
+const { app, Menu, Tray, powerSaveBlocker, BrowserWindow, nativeTheme } = require("electron");
 const { exec } = require("child_process");
 const wol = require("wake_on_lan");
 const prompt = require("electron-prompt");
@@ -64,8 +57,8 @@ async function startNoIdle() {
     console.log("End");
 }
 
-function shutdown(timeInSeconds, restart = "false") {
-    if (isWin) exec(`shutdown ${restart ? "/r" : "/s"} /t ${timeInSeconds}`);
+function shutdown(timeInSeconds) {
+    if (isWin) exec(`shutdown /s /t ${timeInSeconds}`);
     else notif("TODO");
 }
 
@@ -102,14 +95,7 @@ async function restartExplorerExe() {
 }
 
 app.on("ready", () => {
-    tray = new Tray(
-        path.join(
-            __dirname,
-            nativeTheme.shouldUseDarkColors
-                ? "./../assets/icon_light.png"
-                : "./../assets/icon_dark.png"
-        )
-    );
+    tray = new Tray(path.join(__dirname, nativeTheme.shouldUseDarkColors ? "./../assets/icon_light.png" : "./../assets/icon_dark.png"));
 
     const menu = Menu.buildFromTemplate([
         menuVersion,
@@ -158,9 +144,7 @@ app.on("ready", () => {
                     click() {
                         try {
                             shutdown(1800);
-                            exec(
-                                "node C:\\Users\\mario\\Documents\\GitHub\\NodeUtils\\src\\NoIdle.js"
-                            );
+                            exec("node C:\\Users\\mario\\Documents\\GitHub\\NodeUtils\\src\\NoIdle.js");
                             notif("Modo plegar iniciado");
                         } catch (error) {
                             notif("Error", error);
@@ -173,10 +157,7 @@ app.on("ready", () => {
                     click() {
                         try {
                             notif("Reiniciando SQL server...");
-                            exec(
-                                "net stop MSSQL$SQLEXPRESS",
-                                iniciarSQLServer()
-                            );
+                            exec("net stop MSSQL$SQLEXPRESS", iniciarSQLServer());
                         } catch (error) {
                             notif("Error", error);
                         }
@@ -252,9 +233,7 @@ app.on("ready", () => {
             ],
         },
         {
-            label: `Bloqueo suspensión - ${
-                idBloqueoSuspension ? "Activado" : "Desactivado"
-            }`,
+            label: `Bloqueo suspensión - ${idBloqueoSuspension ? "Activado" : "Desactivado"}`,
             visible: isWin,
             submenu: [
                 {
@@ -267,9 +246,7 @@ app.on("ready", () => {
                     label: "Bloquear",
                     click() {
                         if (!idBloqueoSuspension) {
-                            idBloqueoSuspension = powerSaveBlocker.start(
-                                "prevent-app-suspension"
-                            );
+                            idBloqueoSuspension = powerSaveBlocker.start("prevent-app-suspension");
                             notif("Bloqueo activado");
                         } else {
                             notif("Bloqueo ya activo");
@@ -409,54 +386,6 @@ app.on("ready", () => {
             ],
         },
         {
-            label: "Reiniciar en...",
-            visible: isWin,
-            submenu: [
-                {
-                    label: "Cancelar reinicio",
-                    click() {
-                        exec("shutdown /a");
-                    },
-                },
-                {
-                    label: "5 minutos",
-                    click() {
-                        shutdown(60 * 5, true);
-                    },
-                },
-                {
-                    label: "15 minutos",
-                    click() {
-                        shutdown(900, true);
-                    },
-                },
-                {
-                    label: "30 minutos",
-                    click() {
-                        shutdown(1800, true);
-                    },
-                },
-                {
-                    label: "1 hora",
-                    click() {
-                        shutdown(3600, true);
-                    },
-                },
-                {
-                    label: "2 horas",
-                    click() {
-                        shutdown(3600 * 2, true);
-                    },
-                },
-                {
-                    label: "4 horas",
-                    click() {
-                        shutdown(3600 * 4, true);
-                    },
-                },
-            ],
-        },
-        {
             label: "Suspender en...",
             visible: isWin,
             submenu: [
@@ -503,12 +432,8 @@ app.on("ready", () => {
             visible: false,
             click() {
                 if (isWin) {
-                    exec(
-                        "C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe"
-                    );
-                    exec(
-                        '"E:\\Games\\Riot Games\\Riot Client\\RiotClientServices.exe" --launch-product=league_of_legends --launch-patchline=live'
-                    );
+                    exec("C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe");
+                    exec('"E:\\Games\\Riot Games\\Riot Client\\RiotClientServices.exe" --launch-product=league_of_legends --launch-patchline=live');
                 } else {
                     exec("open -a LeagueClient");
                 }
@@ -519,38 +444,29 @@ app.on("ready", () => {
             visible: true,
             click() {
                 startNoIdle();
-                notif(
-                    "No IDLE iniciado",
-                    "Mueve manualmente el cursor para desactivarlo"
-                );
+                notif("No IDLE iniciado", "Mueve manualmente el cursor para desactivarlo");
             },
         },
         {
             label: "Cerrar todas las apps",
             visible: !isWin,
             click() {
-                exec(
-                    "open /Users/marioramos/Repos/Mario-Utils-Electron/QuitAllApps.app"
-                );
+                exec("open /Users/marioramos/Repos/Mario-Utils-Electron/QuitAllApps.app");
             },
         },
         {
             label: "Iniciar Paralels",
             visible: false,
             click() {
-                exec(
-                    "sudo -b /Applications/Parallels Desktop.app/Contents/MacOS/prl_client_app"
-                );
+                exec("sudo -b /Applications/Parallels Desktop.app/Contents/MacOS/prl_client_app");
                 notif("Paralells iniciando...");
             },
         },
         {
             label: "Reiniciar a Windows",
-            visible: !isWin,
+            visible: false,
             click() {
-                exec(
-                    'sudo bless -mount "/Volumes/BOOTCAMP" -legacy -setBoot -nextonly;sudo shutdown -r now'
-                );
+                exec('sudo bless -mount "/Volumes/BOOTCAMP" -legacy -setBoot -nextonly;sudo shutdown -r now');
                 notif("Reiniciando a Windows...");
             },
         },

@@ -19,8 +19,7 @@ async function turnOnOff(deviceIp, doNotif = false) {
 async function programmedTurnOnOff(deviceIp, timeInSeconds) {
     const powerState = await turnOnOff(deviceIp, true);
     await sleep(timeInSeconds * 1000);
-    if ((await getPowerState(deviceIp)) === powerState)
-        await turnOnOff(deviceIp, true);
+    if ((await getPowerState(deviceIp)) === powerState) await turnOnOff(deviceIp, true);
 }
 
 module.exports = {
@@ -28,3 +27,4 @@ module.exports = {
     turnOnOff,
     programmedTurnOnOff,
 };
+
