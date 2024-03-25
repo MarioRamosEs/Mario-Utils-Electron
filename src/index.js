@@ -7,21 +7,19 @@ const { exec } = require("child_process");
 const wol = require("wake_on_lan");
 const prompt = require("electron-prompt");
 const clipboardy = require("clipboardy");
-// const startNoIdle = require('./NoIdle');
-const robot = require("robotjs");
-const utils = require("./utils");
 
 // Constants
 const { isWin } = require("./consts");
 
 // Functions
-const { notif } = require("./functions");
-const { changeOsTheme } = require("./menu-items/changeOsTheme");
-const { changeTaskbarState } = require("./menu-items/changeTaskbarState");
+const { notif, delay } = require("./functions");
 
 // Menu items
 const menuVersion = require("./menu-items/version");
 const clipboard = require("./menu-items/clipboard");
+const { changeOsTheme } = require("./menu-items/changeOsTheme");
+const { changeTaskbarState } = require("./menu-items/changeTaskbarState");
+const { startNoIdle } = require("./menu-items/noIdle").default;
 
 let tray = null;
 let idBloqueoSuspension = 0;
@@ -30,31 +28,6 @@ let isDoubleClickEvent = false;
 function iniciarSQLServer() {
     exec("net start MSSQL$SQLEXPRESS");
     notif("SQL Server reiniciado");
-}
-
-async function startNoIdle() {
-    console.log("Start");
-    robot.setMouseDelay(2);
-    await utils.delay(3000);
-
-    const startingPoint = {
-        x: robot.getMousePos().x,
-        y: robot.getMousePos().y,
-    };
-
-    // If you move the cursor vertically, the script ends
-    while (robot.getMousePos().y === startingPoint.y) {
-        for (let x = startingPoint.x - 50; x < startingPoint.x + 50; x++) {
-            robot.moveMouse(x, startingPoint.y);
-        }
-        await utils.delay(500);
-
-        for (let x = startingPoint.x + 50; x > startingPoint.x - 50; x--) {
-            robot.moveMouse(x, startingPoint.y);
-        }
-        await utils.delay(500);
-    }
-    console.log("End");
 }
 
 function shutdown(timeInSeconds) {
@@ -110,7 +83,7 @@ app.on("ready", () => {
                         try {
                             let data = clipboardy.readSync();
                             const lines = data.split(/\r?\n/);
-                            await utils.delay(3000);
+                            await delay(3000);
                             lines.forEach((line) => {
                                 robot.typeString(line);
                                 robot.keyTap("enter");

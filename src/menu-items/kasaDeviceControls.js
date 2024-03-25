@@ -1,4 +1,5 @@
 const { Client } = require("tplink-smarthome-api");
+const { notif } = require("../functions");
 
 const client = new Client();
 

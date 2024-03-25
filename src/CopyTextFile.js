@@ -5,10 +5,7 @@ const utils = require("./utils");
 
 async function start() {
     console.log("Start");
-    const data = fs.readFileSync(
-        path.resolve(__dirname, "../data/text.txt"),
-        "UTF-8"
-    );
+    const data = fs.readFileSync(path.resolve(__dirname, "../data/text.txt"), "UTF-8");
     const lines = data.split(/\r?\n/);
     await utils.delay(3000);
     lines.forEach((line) => {
