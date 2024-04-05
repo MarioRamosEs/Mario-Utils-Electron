@@ -6,10 +6,17 @@ async function startNoIdle() {
     robot.setMouseDelay(2);
     await delay(3000);
 
+    // const startingPoint = {
+    //     x: robot.getMousePos().x,
+    //     y: robot.getMousePos().y,
+    // };
+
     const startingPoint = {
-        x: robot.getMousePos().x,
-        y: robot.getMousePos().y,
+        x: 100,
+        y: 100,
     };
+
+    robot.moveMouse(startingPoint.x, startingPoint.y);
 
     // If you move the cursor vertically, the script ends
     while (robot.getMousePos().y === startingPoint.y) {
@@ -29,4 +36,3 @@ async function startNoIdle() {
 module.exports = {
     startNoIdle,
 };
-

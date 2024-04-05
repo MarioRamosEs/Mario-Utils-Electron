@@ -19,7 +19,7 @@ const menuVersion = require("./menu-items/version");
 const clipboard = require("./menu-items/clipboard");
 const { changeOsTheme } = require("./menu-items/changeOsTheme");
 const { changeTaskbarState } = require("./menu-items/changeTaskbarState");
-const { startNoIdle } = require("./menu-items/noIdle").default;
+const { startNoIdle } = require("./menu-items/noIdle");
 
 let tray = null;
 let idBloqueoSuspension = 0;
@@ -43,7 +43,7 @@ async function singleClickAsync() {
     // Disabled
     await sleep(200);
     if (isDoubleClickEvent) return;
-    //turnOnOff(ips.luces);
+    // turnOnOff(ips.luces);
 }
 
 async function doubleClickAsync() {
@@ -81,7 +81,7 @@ app.on("ready", () => {
                     label: "Pegar portapeles con enters",
                     async click() {
                         try {
-                            let data = clipboardy.readSync();
+                            const data = clipboardy.readSync();
                             const lines = data.split(/\r?\n/);
                             await delay(3000);
                             lines.forEach((line) => {
@@ -465,4 +465,3 @@ app.on("ready", () => {
 if (!isWin) app.dock.hide();
 app.setAppUserModelId(process.execPath);
 app.on("window-all-closed", (e) => e.preventDefault());
-
