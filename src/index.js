@@ -2,7 +2,9 @@
 /* eslint-disable linebreak-style */
 
 const path = require("path");
-const { app, Menu, Tray, powerSaveBlocker, BrowserWindow, nativeTheme } = require("electron");
+const {
+    app, Menu, Tray, powerSaveBlocker, BrowserWindow, nativeTheme,
+} = require("electron");
 const { exec } = require("child_process");
 const wol = require("wake_on_lan");
 const prompt = require("electron-prompt");
@@ -17,6 +19,7 @@ const { notif, delay } = require("./functions");
 // Menu items
 const menuVersion = require("./menu-items/version");
 const clipboard = require("./menu-items/clipboard");
+const sleepMenu = require("./menu-items/sleep");
 const { changeOsTheme } = require("./menu-items/changeOsTheme");
 const { changeTaskbarState } = require("./menu-items/changeTaskbarState");
 const { startNoIdle } = require("./menu-items/noIdle");
@@ -52,12 +55,6 @@ async function doubleClickAsync() {
     isDoubleClickEvent = false;
     startNoIdle();
     notif("No IDLE iniciado", "Mueve manualmente el cursor para desactivarlo");
-}
-
-async function sleepComputer(ms) {
-    if (!isWin) return;
-    await sleep(ms);
-    exec("nircmd.exe standby");
 }
 
 async function restartExplorerExe() {
@@ -321,6 +318,12 @@ app.on("ready", () => {
                     },
                 },
                 {
+                    label: "Ahora",
+                    click() {
+                        shutdown(1);
+                    },
+                },
+                {
                     label: "5 minutos",
                     click() {
                         shutdown(60 * 5);
@@ -358,48 +361,7 @@ app.on("ready", () => {
                 },
             ],
         },
-        {
-            label: "Suspender en...",
-            visible: isWin,
-            submenu: [
-                {
-                    label: "5 minutos",
-                    click() {
-                        sleepComputer(60 * 5);
-                    },
-                },
-                {
-                    label: "15 minutos",
-                    click() {
-                        sleepComputer(900, true);
-                    },
-                },
-                {
-                    label: "30 minutos",
-                    click() {
-                        sleepComputer(1800, true);
-                    },
-                },
-                {
-                    label: "1 hora",
-                    click() {
-                        sleepComputer(3600, true);
-                    },
-                },
-                {
-                    label: "2 horas",
-                    click() {
-                        sleepComputer(3600 * 2, true);
-                    },
-                },
-                {
-                    label: "4 horas",
-                    click() {
-                        sleepComputer(3600 * 4, true);
-                    },
-                },
-            ],
-        },
+        sleepMenu,
         {
             label: "Lolete",
             visible: false,

@@ -19,4 +19,3 @@ module.exports = {
     notif,
     delay,
 };
-

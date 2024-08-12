@@ -1,5 +1,5 @@
-const { notif } = require("../functions");
 const clipboardy = require("clipboardy");
+const { notif } = require("../functions");
 
 module.exports = {
     label: "Portapapeles",

@@ -12,6 +12,7 @@
     },
     "rules": {
         "indent": ["error", 4],
+        "linebreak-style": "off",
         "quotes": "off",
         "no-lonely-if": "off",
         "max-len": ["off", { "code": 0 }]
