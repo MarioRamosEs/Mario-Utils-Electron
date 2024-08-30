@@ -1,6 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable linebreak-style */
-
 const path = require("path");
 const {
     app, Menu, Tray, powerSaveBlocker, BrowserWindow, nativeTheme,
@@ -29,14 +26,11 @@ let tray = null;
 let idBloqueoSuspension = 0;
 let isDoubleClickEvent = false;
 
-
-
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function singleClickAsync() {
-    // Disabled
     await sleep(200);
     if (isDoubleClickEvent) return;
     // turnOnOff(ips.luces);
@@ -49,7 +43,6 @@ async function doubleClickAsync() {
     startNoIdle();
     notif("No IDLE iniciado", "Mueve manualmente el cursor para desactivarlo");
 }
-
 
 app.on("ready", () => {
     tray = new Tray(path.join(__dirname, nativeTheme.shouldUseDarkColors ? "./../assets/icon_light.png" : "./../assets/icon_dark.png"));
@@ -79,7 +72,7 @@ app.on("ready", () => {
                     const win = new BrowserWindow({});
                     win.loadURL("https://marioramos.es/utils/randomizer");
                 } catch (error) {
-                    notif("Error", error);
+                    notif("Error", error.message);
                 }
             },
         },

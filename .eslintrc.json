@@ -15,6 +15,7 @@
         "linebreak-style": "off",
         "quotes": "off",
         "no-lonely-if": "off",
-        "max-len": ["off", { "code": 0 }]
+        "max-len": ["off", { "code": 0 }],
+        "no-console": "off"
     }
 }
