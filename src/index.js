@@ -14,6 +14,7 @@ const { notif } = require("./functions");
 const menuVersion = require("./menu-items/version");
 const clipboard = require("./menu-items/clipboard");
 const sleepMenu = require("./menu-items/sleep");
+const loleteMenu = require("./menu-items/lolete");
 const { changeOsTheme } = require("./menu-items/changeOsTheme");
 const { changeTaskbarState } = require("./menu-items/changeTaskbarState");
 const { startNoIdle } = require("./menu-items/noIdle");
@@ -114,18 +115,7 @@ app.on("ready", () => {
         },
         getShutdownMenu(),
         sleepMenu,
-        {
-            label: "Lolete",
-            visible: false,
-            click() {
-                if (isWin) {
-                    exec("C:\\Users\\mario\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe");
-                    exec('"E:\\Games\\Riot Games\\Riot Client\\RiotClientServices.exe" --launch-product=league_of_legends --launch-patchline=live');
-                } else {
-                    exec("open -a LeagueClient");
-                }
-            },
-        },
+        loleteMenu,
         {
             label: "No IDLE",
             visible: true,
