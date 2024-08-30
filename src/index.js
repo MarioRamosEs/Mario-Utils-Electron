@@ -6,15 +6,12 @@ const {
     app, Menu, Tray, powerSaveBlocker, BrowserWindow, nativeTheme,
 } = require("electron");
 const { exec } = require("child_process");
-const wol = require("wake_on_lan");
-const prompt = require("electron-prompt");
-const clipboardy = require("clipboardy");
 
 // Constants
 const { isWin } = require("./consts");
 
 // Functions
-const { notif, delay } = require("./functions");
+const { notif } = require("./functions");
 
 // Menu items
 const menuVersion = require("./menu-items/version");
@@ -23,20 +20,16 @@ const sleepMenu = require("./menu-items/sleep");
 const { changeOsTheme } = require("./menu-items/changeOsTheme");
 const { changeTaskbarState } = require("./menu-items/changeTaskbarState");
 const { startNoIdle } = require("./menu-items/noIdle");
+const { getAutomateMenu } = require("./menu-items/automate");
+const { getWorkMenu } = require("./menu-items/work");
+const { getMaintenanceMenu } = require("./menu-items/maintenance");
+const { getShutdownMenu } = require("./menu-items/shutdown");
 
 let tray = null;
 let idBloqueoSuspension = 0;
 let isDoubleClickEvent = false;
 
-function iniciarSQLServer() {
-    exec("net start MSSQL$SQLEXPRESS");
-    notif("SQL Server reiniciado");
-}
 
-function shutdown(timeInSeconds) {
-    if (isWin) exec(`shutdown /s /t ${timeInSeconds}`);
-    else notif("TODO");
-}
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -57,12 +50,6 @@ async function doubleClickAsync() {
     notif("No IDLE iniciado", "Mueve manualmente el cursor para desactivarlo");
 }
 
-async function restartExplorerExe() {
-    if (!isWin) return;
-    exec("taskkill /f /im explorer.exe");
-    await sleep(1000);
-    exec("explorer.exe");
-}
 
 app.on("ready", () => {
     tray = new Tray(path.join(__dirname, nativeTheme.shouldUseDarkColors ? "./../assets/icon_light.png" : "./../assets/icon_dark.png"));
@@ -70,83 +57,8 @@ app.on("ready", () => {
     const menu = Menu.buildFromTemplate([
         menuVersion,
         clipboard,
-        {
-            label: "Automatizar",
-            visible: true,
-            submenu: [
-                {
-                    label: "Pegar portapeles con enters",
-                    async click() {
-                        try {
-                            const data = clipboardy.readSync();
-                            const lines = data.split(/\r?\n/);
-                            await delay(3000);
-                            lines.forEach((line) => {
-                                robot.typeString(line);
-                                robot.keyTap("enter");
-                            });
-                            notif("Portapeles pegado con enters");
-                        } catch (error) {
-                            notif("Error", error);
-                        }
-                    },
-                },
-            ],
-        },
-        {
-            label: "Trabajo",
-            visible: true,
-            submenu: [
-                {
-                    label: "Tracker",
-                    click() {
-                        try {
-                            const win = new BrowserWindow({});
-                            win.loadURL("https://jobtracker.marioramos.es/");
-                        } catch (error) {
-                            notif("Error", error);
-                        }
-                    },
-                },
-                {
-                    label: "Plegar",
-                    visible: isWin,
-                    click() {
-                        try {
-                            shutdown(1800);
-                            exec("node C:\\Users\\mario\\Documents\\GitHub\\NodeUtils\\src\\NoIdle.js");
-                            notif("Modo plegar iniciado");
-                        } catch (error) {
-                            notif("Error", error);
-                        }
-                    },
-                },
-                {
-                    label: "Reiniciar SQL Server",
-                    visible: isWin,
-                    click() {
-                        try {
-                            notif("Reiniciando SQL server...");
-                            exec("net stop MSSQL$SQLEXPRESS", iniciarSQLServer());
-                        } catch (error) {
-                            notif("Error", error);
-                        }
-                    },
-                },
-                {
-                    label: "Cerrar Docker",
-                    visible: !isWin,
-                    click() {
-                        try {
-                            exec("osascript -e 'quit app \"Docker\"'");
-                            notif("Docker cerrado");
-                        } catch (error) {
-                            notif("Error", error);
-                        }
-                    },
-                },
-            ],
-        },
+        getAutomateMenu(),
+        getWorkMenu(),
         {
             label: "Modo Oscuro/Claro",
             click() {
@@ -171,37 +83,7 @@ app.on("ready", () => {
                 }
             },
         },
-        {
-            label: "Mantenimiento",
-            visible: isWin,
-            submenu: [
-                {
-                    label: "Limpiar TEMP",
-                    visible: isWin,
-                    click() {
-                        try {
-                            exec("del /q/f/s %TEMP%\\*");
-                        } catch (error) {
-                            notif("Error", error);
-                        }
-                    },
-                },
-                {
-                    label: "Reiniciar explorer.exe",
-                    visible: isWin,
-                    click() {
-                        restartExplorerExe();
-                    },
-                },
-                {
-                    label: "Apagar WSL",
-                    visible: isWin,
-                    click() {
-                        exec("wsl --shutdown");
-                    },
-                },
-            ],
-        },
+        getMaintenanceMenu(),
         {
             label: `Bloqueo suspensión - ${idBloqueoSuspension ? "Activado" : "Desactivado"}`,
             visible: isWin,
@@ -237,130 +119,7 @@ app.on("ready", () => {
                 },
             ],
         },
-        {
-            label: "WoL Manual", // Hided
-            visible: false,
-            click() {
-                prompt({
-                    title: "Prompt IP",
-                    label: "IP:",
-                    value: "192.168.1.135",
-                })
-                    .then((r) => {
-                        wol.wake(macs.torre, { address: r }, (error) => {
-                            if (error) {
-                                notif(`Error en WoL: ${error}`);
-                            } else {
-                                notif(`WoL correcto ${r}`);
-                            }
-                        });
-                    })
-                    .catch(console.error);
-            },
-        },
-        {
-            label: "WoL Torre",
-            visible: false,
-            click() {
-                wol.wake(macs.torre, { address: ips.torre }, (error) => {
-                    if (error) {
-                        notif(`Error en WoL: ${error}`);
-                    } else {
-                        notif("WoL correcto");
-                    }
-                });
-            },
-        },
-        {
-            label: "Aire/Estufa",
-            visible: false,
-            click() {
-                turnOnOff(ips.aire2, true);
-            },
-        },
-        {
-            label: "Aire/Estufa temporizado",
-            visible: false,
-            submenu: [
-                {
-                    label: "5 minutos",
-                    click: () => programmedTurnOnOff(ips.aire2, 60 * 5),
-                },
-                {
-                    label: "15 minutos",
-                    click: () => programmedTurnOnOff(ips.aire2, 900),
-                },
-                {
-                    label: "30 minutos",
-                    click: () => programmedTurnOnOff(ips.aire2, 1800),
-                },
-                {
-                    label: "1 hora",
-                    click: () => programmedTurnOnOff(ips.aire2, 3600),
-                },
-            ],
-        },
-        {
-            label: "Luces",
-            visible: false,
-            click() {
-                turnOnOff(ips.luces);
-            },
-        },
-        {
-            label: "Apagar en...",
-            visible: isWin,
-            submenu: [
-                {
-                    label: "Cancelar apagado",
-                    click() {
-                        exec("shutdown /a");
-                    },
-                },
-                {
-                    label: "Ahora",
-                    click() {
-                        shutdown(1);
-                    },
-                },
-                {
-                    label: "5 minutos",
-                    click() {
-                        shutdown(60 * 5);
-                    },
-                },
-                {
-                    label: "15 minutos",
-                    click() {
-                        shutdown(900);
-                    },
-                },
-                {
-                    label: "30 minutos",
-                    click() {
-                        shutdown(1800);
-                    },
-                },
-                {
-                    label: "1 hora",
-                    click() {
-                        shutdown(3600);
-                    },
-                },
-                {
-                    label: "2 horas",
-                    click() {
-                        shutdown(3600 * 2);
-                    },
-                },
-                {
-                    label: "4 horas",
-                    click() {
-                        shutdown(3600 * 4);
-                    },
-                },
-            ],
-        },
+        getShutdownMenu(),
         sleepMenu,
         {
             label: "Lolete",
