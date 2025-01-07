@@ -1,5 +1,3 @@
-import packageJson from '../../package.json';
-
 const { version } = require("../../package");
 const { isWin } = require("../consts");
 const { notif } = require("../functions");
