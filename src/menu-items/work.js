@@ -1,6 +1,6 @@
 const { exec } = require("child_process");
-const { notif, shutdown, iniciarSQLServer } = require("../functions");
 const { BrowserWindow } = require("electron");
+const { notif, shutdown, iniciarSQLServer } = require("../functions");
 const { isWin } = require("../consts");
 
 function getWorkMenu() {

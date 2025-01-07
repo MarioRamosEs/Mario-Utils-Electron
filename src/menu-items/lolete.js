@@ -1,6 +1,5 @@
 const { exec } = require("child_process");
 const { isWin } = require("../consts");
-const { notif } = require("../functions");
 
 module.exports = {
     label: "Lolete",

@@ -1,6 +1,6 @@
-const { exec } = require("child_process");
-const { notif, delay } = require("../functions");
 const clipboardy = require("clipboardy");
+const robot = require('robotjs');
+const { notif, delay } = require("../functions");
 
 function getAutomateMenu() {
     return {

@@ -1,13 +1,14 @@
-const { isWin } = require("../consts");
 const { nativeTheme } = require("electron");
 const { exec } = require("child_process");
-const { delay } = require("../functions");
 const path = require("path");
+const os = require("os");
+const { delay } = require("../functions");
+const { isWin } = require("../consts");
 
 async function changeOsTheme(tray) {
     try {
         if (isWin) {
-            const winVersionRelease = parseInt(require("os").release().split(".")[2]);
+            const winVersionRelease = parseInt(os.release().split(".")[2], 10);
 
             // Windows 11
             if (winVersionRelease > 22000) {

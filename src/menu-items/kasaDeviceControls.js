@@ -3,6 +3,8 @@ const { notif } = require("../functions");
 
 const client = new Client();
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function getPowerState(deviceIp) {
     const device = await client.getDevice({ host: deviceIp });
     const powerState = await device.getPowerState();
@@ -28,4 +30,3 @@ module.exports = {
     turnOnOff,
     programmedTurnOnOff,
 };
-
