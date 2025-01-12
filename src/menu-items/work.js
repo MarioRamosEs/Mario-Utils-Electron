@@ -13,7 +13,7 @@ function getWorkMenu() {
                 click() {
                     try {
                         const win = new BrowserWindow({});
-                        win.loadURL("https://jobtracker.marioramos.es/");
+                        win.loadURL("https://utils.marioramos.es/job-tracker");
                     } catch (error) {
                         notif("Error", error);
                     }

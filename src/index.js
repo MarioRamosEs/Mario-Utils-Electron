@@ -71,7 +71,18 @@ app.on("ready", () => {
             click() {
                 try {
                     const win = new BrowserWindow({});
-                    win.loadURL("https://marioramos.es/utils/randomizer");
+                    win.loadURL("https://utils.marioramos.es/randomizer");
+                } catch (error) {
+                    notif("Error", error.message);
+                }
+            },
+        },
+        {
+            label: "Contadores",
+            click() {
+                try {
+                    const win = new BrowserWindow({});
+                    win.loadURL("https://utils.marioramos.es/counters");
                 } catch (error) {
                     notif("Error", error.message);
                 }
